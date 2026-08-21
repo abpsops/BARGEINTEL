@@ -1,0 +1,145 @@
+# BARGEINTEL
+
+Competitor Barge Intelligence. From IMO Numbers to Vessel-Level Supply Activity.
+
+BARGEINTEL turns the manual "check 30 competitor barge IMOs one at a time"
+workflow into: track competitors → import authorised STS data → filter by
+date/competitor/operation → see every vessel supplied.
+
+The app runs on **local demo data out of the box** — no backend required —
+and switches to a real Supabase project the moment you set two environment
+variables. No credentials are ever hardcoded.
+
+---
+
+## 1. Local development
+
+```bash
+npm install
+npm run dev
+```
+
+Opens on `http://localhost:5173`. With no `.env` file, it runs entirely on
+generated demo data (persisted to your browser's localStorage) — a small
+**DEMO DATA** badge appears in the sidebar so it's never confused with real
+imported data.
+
+---
+
+## 2. Provisioning a real Supabase project
+
+I can't create a live Supabase project on your behalf — that has to happen
+in your own Supabase account. It takes about five minutes:
+
+1. Go to https://supabase.com/dashboard and create a new project (choose a
+   region close to you, e.g. `me-central-1` or `ap-south-1`).
+2. Once it's provisioned, open **SQL Editor** and run the entire contents of
+   [`supabase/schema.sql`](./supabase/schema.sql). This creates every table,
+   index, and Row Level Security policy from the spec in one pass.
+3. Create your organization and your own user profile row:
+   ```sql
+   insert into organizations (id, name) values (gen_random_uuid(), 'Your Company') returning id;
+   -- copy the returned id, then:
+   insert into user_profiles (id, organization_id, full_name, role)
+   values (auth.uid(), '<org id from above>', 'Your Name', 'ADMIN');
+   ```
+   (Run the second statement while logged in via Supabase Auth, or substitute
+   a real `auth.users.id` if inserting manually.)
+4. In **Project Settings → API**, copy the **Project URL** and **anon public
+   key**.
+5. Copy `.env.example` to `.env` and paste them in:
+   ```
+   VITE_SUPABASE_URL=https://xxxx.supabase.co
+   VITE_SUPABASE_ANON_KEY=eyJ...
+   ```
+6. Restart `npm run dev`. The sidebar badge disappears and the app now reads
+   and writes through `SupabaseDataProvider` against your real project —
+   every page is unchanged, since no page talks to Supabase directly (see
+   `src/services/data/DataProvider.ts`).
+
+Never commit `.env` — it's already in `.gitignore`.
+
+---
+
+## 3. Deploying to Cloudflare Pages
+
+```bash
+npm run build
+```
+
+Then in the Cloudflare dashboard: **Pages → Create project → connect your
+repo**, with build command `npm run build` and output directory `dist`. Add
+`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as **Environment Variables**
+in the Pages project settings (not in the repo) so production reads from
+your live project.
+
+---
+
+## 4. CSV / XLSX import format
+
+The importer auto-detects columns by header name and lets you remap any of
+them manually before import. Recognised header aliases:
+
+| Internal field | Accepted headers |
+|---|---|
+| Barge IMO | `IMO`, `Barge IMO`, `Barge` |
+| Barge Name | `Barge Name`, `Barge` |
+| Receiving Vessel | `Vessel`, `Vessel Name`, `Receiving Vessel`, `Receiving Vessel Name` |
+| Receiving IMO | `Receiving IMO`, `Receiving Vessel IMO` |
+| Operation | `Operation`, `Operation Type` |
+| Date | `Date`, `Operation Date` |
+| Start / End | `Start`, `Start Time`, `End`, `End Time` |
+| Location | `Location`, `Area` |
+| Lat / Lng | `Latitude`, `Lat`, `Longitude`, `Lon`, `Lng` |
+
+A row is rejected (not silently modified) if its barge IMO fails check-digit
+validation, doesn't match a barge you've already added under **Barges**, or
+is missing a date or receiving vessel. Rejected rows are listed with the
+specific reason in the import preview. Duplicate detection uses
+`source_provider` + `source_record_id` when available, otherwise a
+fingerprint of barge IMO + date + operation + receiving vessel + location +
+start time (see `src/lib/fingerprint.ts`) — never vessel name alone.
+
+Unrecognised operation-type labels are classified as `OTHER_STS` rather than
+guessed into Bunkering or Supply (`src/lib/normalizeOperation.ts`).
+
+---
+
+## 5. Data provider architecture
+
+```
+MaritimeDataProvider (interface, src/services/data/DataProvider.ts)
+    ├── DemoDataProvider       — in-memory/localStorage, used with no env vars set
+    └── SupabaseDataProvider   — real Postgres via supabase-js
+```
+
+Every page calls `getDataProvider()` — never a concrete class — so a future
+`AuthorisedMaritimeApiProvider` (an official S&P/AIS feed, once you have a
+licensed connection) can be dropped in without touching any page. This app
+never scrapes or reverse-engineers a third-party platform; import CSV/XLSX
+exports here, or wire up an authorised API later.
+
+---
+
+## 6. Tests
+
+```bash
+npm test
+```
+
+Test files live in `src/lib/__tests__/`, covering IMO check-digit
+validation, operation-type normalization, date-range inclusivity, and
+duplicate fingerprinting — the logic most likely to silently corrupt
+competitive analysis if it regresses.
+
+---
+
+## 7. Production checklist
+
+- [ ] Real Supabase project provisioned and `schema.sql` applied
+- [ ] `.env` set with production Supabase URL/key (Cloudflare Pages env vars, not committed)
+- [ ] At least one `ADMIN` user profile created
+- [ ] Competitors and barge IMOs entered under **Fleet**
+- [ ] First authorised CSV/XLSX import completed and reviewed under **Data Quality**
+- [ ] Confirm demo-mode badge is gone in production
+- [ ] RLS verified: a second organization's user cannot see your data

@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+
+body {
+  @apply bg-ink-950 text-paper-100 font-sans antialiased;
+  font-feature-settings: "tnum" 1;
+}
+
+::selection { background: #4FD1C555; }
+
+/* Signature device: a depth-sounding rule — a thin scale bar with tick
+   marks, evoking a chart's depth/sounding line. Used under section
+   headers and as a divider throughout the app. */
+.sounding-rule {
+  position: relative;
+  height: 1px;
+  background: linear-gradient(90deg, #22304A 0%, #22304A 100%);
+}
+.sounding-rule::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #33455F 0px,
+    #33455F 1px,
+    transparent 1px,
+    transparent 12px
+  );
+  opacity: 0.9;
+}
+
+.scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #22304A; border-radius: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+
+table { font-variant-numeric: tabular-nums; }
+
+.focus-ring:focus-visible {
+  outline: 2px solid #4FD1C5;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
