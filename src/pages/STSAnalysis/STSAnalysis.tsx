@@ -28,11 +28,19 @@ export default function STSAnalysis() {
   const [mode, setMode] = useState<"all" | "unique">("all")
 
   const filters = { dateFrom, dateTo, competitorIds, bargeIds, operationTypes, locations, receivingVesselQuery: vesselQuery }
+  const [hasRun, setHasRun] = useState(false)
+  const [appliedFilters, setAppliedFilters] = useState(filters)
 
   const { data: results = [], isFetching } = useQuery({
-    queryKey: ["sts-analysis", filters],
-    queryFn: () => provider.getSTSOperations(filters),
+    queryKey: ["sts-analysis", appliedFilters],
+    queryFn: () => provider.getSTSOperations(appliedFilters),
+    enabled: hasRun,
   })
+
+  const runAnalysis = () => {
+    setAppliedFilters(filters)
+    setHasRun(true)
+  }
 
   const availableBarges = competitorIds.length ? barges.filter((b) => competitorIds.includes(b.competitor_id)) : barges
   const locationOptions = useMemo(() => {
@@ -138,11 +146,34 @@ export default function STSAnalysis() {
           <input
             value={vesselQuery}
             onChange={(e) => setVesselQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && runAnalysis()}
             placeholder="Receiving vessel / IMO…"
             className="bg-ink-800 border border-ink-600 rounded px-2.5 py-1.5 text-xs w-48 focus-ring"
           />
+          <button
+            onClick={runAnalysis}
+            className="ml-auto rounded bg-signal-bunker text-ink-950 px-5 py-2 text-xs font-semibold tracking-wide hover:bg-signal-bunker/90 transition-colors focus-ring"
+          >
+            RUN ANALYSIS
+          </button>
         </div>
 
+        <p className="mt-2 text-[11px] text-paper-500">
+          Leave Competitor and Barge unselected to include every tracked barge. Pick a date range above, then press
+          Run Analysis.
+        </p>
+
+        {!hasRun && (
+          <div className="mt-4 rounded-lg border border-ink-700 bg-ink-900 px-4 py-10 text-center">
+            <p className="text-sm text-paper-300">Set a date range above and press Run Analysis.</p>
+            <p className="mt-1 text-xs text-paper-500">
+              With no Competitor or Barge selected, every tracked barge is included.
+            </p>
+          </div>
+        )}
+
+        {hasRun && (
+        <>
         <div className="mt-4 grid grid-cols-4 gap-3">
           <KpiCard label="STS Operations" value={results.length} />
           <KpiCard label="Unique Receiving Vessels" value={uniqueVesselCount} />
@@ -251,6 +282,8 @@ export default function STSAnalysis() {
             </table>
           )}
         </div>
+        </>
+        )}
       </div>
     </div>
   )
