@@ -14,7 +14,7 @@ import Settings from "@/pages/Settings/Settings"
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/BARGEINTEL/">
       <Routes>
         <Route element={<DashboardLayout />}>
           <Route path="/" element={<Dashboard />} />
