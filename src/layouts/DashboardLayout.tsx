@@ -16,6 +16,7 @@ import {
   Settings as SettingsIcon,
   ScrollText,
   Search,
+  MapPin,
 } from "lucide-react"
 import { getDataProvider } from "@/services/data"
 import GlobalSearch from "@/components/layout/GlobalSearch"
@@ -31,6 +32,7 @@ const NAV_SECTIONS: {
       { to: "/sts-analysis", label: "Competitor Analysis", icon: Radar },
       { to: "/vessel-intelligence", label: "Vessel Intelligence", icon: Ship },
       { to: "/vessel-overlap", label: "Vessel Overlap", icon: GitCompareArrows },
+      { to: "/live-map", label: "Live Map", icon: MapPin },
     ],
   },
   {
