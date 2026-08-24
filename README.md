@@ -134,7 +134,31 @@ competitive analysis if it regresses.
 
 ---
 
-## 7. Production checklist
+## 7. Automatic STS detection from live AIS (optional)
+
+The frontend's **Live Map** page shows live barge positions in-browser once
+you enter an AISStream.io key there — that part needs nothing extra.
+
+Turning that into automatic, historical STS detection — the kind that
+populates **Competitor Analysis** without manual CSV imports — needs three
+things running together, not just an API key:
+
+1. An [AISStream.io](https://aisstream.io) API key (free)
+2. A real Supabase project (see section 2 above — this can't run on demo mode)
+3. **[`worker/`](./worker)** — a standalone, always-on Node service that
+   watches AIS 24/7 and writes detected candidate events into Supabase.
+   See `worker/README.md` for what it detects, its limits, and how to
+   deploy it somewhere that stays running (Railway, Render, Fly.io, or a
+   VPS — not Cloudflare Pages or GitHub Actions, which don't support
+   long-lived processes).
+
+Detected events land with `confidence: medium` and are labelled as
+AIS-inferred, not asserted as confirmed bunkering — AIS carries no cargo
+information, so proximity + stillness is a strong signal, not proof.
+
+---
+
+## 8. Production checklist
 
 - [ ] Real Supabase project provisioned and `schema.sql` applied
 - [ ] `.env` set with production Supabase URL/key (Cloudflare Pages env vars, not committed)
