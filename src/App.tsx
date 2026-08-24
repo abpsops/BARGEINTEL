@@ -12,6 +12,8 @@ import Import from "@/pages/Import/Import"
 import DataQuality from "@/pages/DataQuality/DataQuality"
 import Reports from "@/pages/Reports/Reports"
 import Watchlists from "@/pages/Watchlists/Watchlists"
+import Alerts from "@/pages/Alerts/Alerts"
+import AuditLog from "@/pages/AuditLog/AuditLog"
 import Settings from "@/pages/Settings/Settings"
 
 export default function App() {
@@ -31,6 +33,8 @@ export default function App() {
           <Route path="/data-quality" element={<DataQuality />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/watchlists" element={<Watchlists />} />
+          <Route path="/alerts" element={<Alerts />} />
+          <Route path="/audit-log" element={<AuditLog />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

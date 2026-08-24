@@ -17,6 +17,7 @@ import {
   ScrollText,
   Search,
   MapPin,
+  BellRing,
 } from "lucide-react"
 import { getDataProvider } from "@/services/data"
 import GlobalSearch from "@/components/layout/GlobalSearch"
@@ -59,7 +60,9 @@ const NAV_SECTIONS: {
   {
     label: "System",
     items: [
+      { to: "/alerts", label: "Alerts", icon: BellRing },
       { to: "/settings", label: "Settings", icon: SettingsIcon },
+      { to: "/audit-log", label: "Audit Log", icon: ScrollText },
     ],
   },
 ]

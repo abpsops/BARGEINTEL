@@ -14,4 +14,16 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          leaflet: ['leaflet', 'react-leaflet'],
+          charts: ['recharts'],
+          xlsx: ['xlsx'],
+          vendor: ['react', 'react-dom', 'react-router-dom', '@tanstack/react-query'],
+        },
+      },
+    },
+  },
 })
