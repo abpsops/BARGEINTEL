@@ -1,5 +1,5 @@
 import { getDataProvider } from "@/services/data"
-import { isSupabaseConfigured } from "@/services/supabase/client"
+import { isSupabaseConfigured, supabase } from "@/services/supabase/client"
 import { DEFAULT_TIMEZONE } from "@/lib/dates"
 import PageHeader from "@/components/ui/PageHeader"
 
@@ -49,6 +49,15 @@ export default function Settings() {
             <li><span className="font-mono text-paper-500">VIEWER</span> — read-only access</li>
           </ul>
         </div>
+
+        {isSupabaseConfigured && (
+          <button
+            onClick={() => supabase?.auth.signOut()}
+            className="rounded border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:bg-ink-800"
+          >
+            Sign out
+          </button>
+        )}
       </div>
     </div>
   )

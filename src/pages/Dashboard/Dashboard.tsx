@@ -68,14 +68,14 @@ export default function Dashboard() {
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={dailySeries}>
-              <CartesianGrid stroke="#182338" vertical={false} />
-              <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#8593AD" }} axisLine={{ stroke: "#22304A" }} tickLine={false} />
-              <YAxis tick={{ fontSize: 10, fill: "#8593AD" }} axisLine={false} tickLine={false} allowDecimals={false} />
+              <CartesianGrid stroke="#E2E8F0" vertical={false} />
+              <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#64748B" }} axisLine={{ stroke: "#E2E8F0" }} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: "#64748B" }} axisLine={false} tickLine={false} allowDecimals={false} />
               <Tooltip
-                contentStyle={{ background: "#111A2B", border: "1px solid #22304A", fontSize: 12 }}
-                labelStyle={{ color: "#E7ECF5" }}
+                contentStyle={{ background: "#FFFFFF", border: "1px solid #E2E8F0", fontSize: 12 }}
+                labelStyle={{ color: "#0B1220" }}
               />
-              <Bar dataKey="count" fill="#4FD1C5" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="count" fill="#0F8A80" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

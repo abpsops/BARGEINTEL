@@ -9,7 +9,7 @@ body {
   font-feature-settings: "tnum" 1;
 }
 
-::selection { background: #4FD1C555; }
+::selection { background: #0F8A8055; }
 
 /* Signature device: a depth-sounding rule — a thin scale bar with tick
    marks, evoking a chart's depth/sounding line. Used under section
@@ -17,7 +17,7 @@ body {
 .sounding-rule {
   position: relative;
   height: 1px;
-  background: linear-gradient(90deg, #22304A 0%, #22304A 100%);
+  background: linear-gradient(90deg, #E2E8F0 0%, #E2E8F0 100%);
 }
 .sounding-rule::before {
   content: "";
@@ -25,8 +25,8 @@ body {
   inset: 0;
   background-image: repeating-linear-gradient(
     90deg,
-    #33455F 0px,
-    #33455F 1px,
+    #94A3B8 0px,
+    #94A3B8 1px,
     transparent 1px,
     transparent 12px
   );
@@ -34,13 +34,13 @@ body {
 }
 
 .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
-.scrollbar-thin::-webkit-scrollbar-thumb { background: #22304A; border-radius: 4px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
 
 table { font-variant-numeric: tabular-nums; }
 
 .focus-ring:focus-visible {
-  outline: 2px solid #4FD1C5;
+  outline: 2px solid #0F8A80;
   outline-offset: 2px;
 }
 

@@ -12,7 +12,7 @@ import PageHeader from "@/components/ui/PageHeader"
 // asset resolution doesn't work through Vite without this.
 const bargeIcon = new L.DivIcon({
   className: "",
-  html: `<div style="width:12px;height:12px;border-radius:50%;background:#4FD1C5;border:2px solid #0B1220;box-shadow:0 0 0 2px #4FD1C5;"></div>`,
+  html: `<div style="width:12px;height:12px;border-radius:50%;background:#0F8A80;border:2px solid #FFFFFF;box-shadow:0 0 0 2px #0F8A80;"></div>`,
   iconSize: [12, 12],
 })
 
@@ -126,10 +126,10 @@ export default function LiveMap() {
         {apiKey && (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             <div className="lg:col-span-3 rounded-lg border border-ink-700 overflow-hidden h-[560px]">
-              <MapContainer center={FUJAIRAH_CENTER} zoom={9} style={{ height: "100%", width: "100%", background: "#0B1220" }}>
+              <MapContainer center={FUJAIRAH_CENTER} zoom={9} style={{ height: "100%", width: "100%", background: "#F7F9FC" }}>
                 <TileLayer
                   attribution='&copy; OpenStreetMap contributors'
-                  url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                  url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
                 />
                 {trackedContacts.map((c) => {
                   const barge = bargeByImo.get(c.imo!)

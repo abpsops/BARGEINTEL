@@ -159,7 +159,7 @@ export default function Competitors() {
         </div>
       </div>
 
-      <style>{`.input { background:#111A2B; border:1px solid #22304A; border-radius:4px; padding:6px 8px; font-size:13px; color:#E7ECF5; }`}</style>
+      <style>{`.input { background:#F7F9FC; border:1px solid #E2E8F0; border-radius:4px; padding:6px 8px; font-size:13px; color:#0B1220; }`}</style>
     </div>
   )
 }
