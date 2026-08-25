@@ -1,4 +1,14 @@
 import "dotenv/config"
+import WebSocket from "ws"
+
+// supabase-js initializes a realtime client during createClient() that
+// requires a global WebSocket — natively available only from Node 22+.
+// This worker doesn't use realtime subscriptions, but the client still
+// needs the global to exist or construction throws immediately.
+if (!(globalThis as any).WebSocket) {
+  ;(globalThis as any).WebSocket = WebSocket
+}
+
 import { AisStreamWorkerClient } from "./aisClient.js"
 import { EncounterTracker, type VesselFix } from "./detection.js"
 import { makeSupabaseWriter, type TrackedBarge } from "./supabaseWriter.js"
