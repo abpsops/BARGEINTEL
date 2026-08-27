@@ -14,7 +14,7 @@ const AISSTREAM_API_KEY = requireEnv("AISSTREAM_API_KEY")
 const SUPABASE_URL = requireEnv("SUPABASE_URL")
 const SUPABASE_SERVICE_ROLE_KEY = requireEnv("SUPABASE_SERVICE_ROLE_KEY")
 
-const LISTEN_WINDOW_MS = 50_000 // stays connected this long, then exits
+const LISTEN_WINDOW_MS = 90_000 // stays connected this long, then exits
 
 function requireEnv(name: string): string {
   const v = process.env[name]

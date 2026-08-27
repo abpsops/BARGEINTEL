@@ -62,15 +62,21 @@ export class AisStreamWorkerClient {
       try {
         msg = JSON.parse(data.toString())
       } catch {
+        console.log("[ais] non-JSON message:", data.toString().slice(0, 200))
         return
+      }
+      if (msg.MessageType !== "PositionReport" && msg.MessageType !== "ShipStaticData") {
+        // Surfaces auth errors, rate-limit notices, or anything else
+        // AISStream sends that isn't a position/static message.
+        console.log("[ais] unhandled message:", JSON.stringify(msg).slice(0, 300))
       }
       this.handleMessage(msg)
     })
 
     this.ws.on("error", (err) => console.error("[ais] error", err.message))
 
-    this.ws.on("close", () => {
-      console.log("[ais] closed")
+    this.ws.on("close", (code, reason) => {
+      console.log(`[ais] closed (code ${code}${reason?.length ? `, reason: ${reason}` : ""})`)
       if (this.shouldRun) {
         setTimeout(() => this.connect(), this.reconnectDelayMs)
         this.reconnectDelayMs = Math.min(this.reconnectDelayMs * 2, 60_000)
