@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "tsx src/index.ts",
+    "poll": "tsx src/pollOnce.ts",
     "build": "tsc",
     "test": "vitest run"
   },
