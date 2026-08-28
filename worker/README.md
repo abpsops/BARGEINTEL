@@ -55,6 +55,27 @@ cp .env.example .env
 npm start
 ```
 
+## Known current issue: AISStream delivering zero data (as of Aug 2026)
+
+As of testing on 28 Aug 2026, AISStream.io accepts the subscription
+(`SubscriptionConfirmation` arrives, confirming the API key is valid) but
+delivers **zero** `PositionReport`/`ShipStaticData` messages afterward —
+tested with two different fresh API keys, both with identical results.
+
+This matches a still-open issue on AISStream's own GitHub
+([aisstream/aisstream#15](https://github.com/aisstream/aisstream/issues/15)),
+reported independently in Python with a full-world bounding box, same
+symptom. This points to a service-side problem, not this codebase or a
+specific account/key.
+
+**No action needed to "fix" this from our side.** The scheduled GitHub
+Actions poll (`ais-poll.yml`) keeps running automatically every ~15
+minutes (subject to GitHub's own throttling on scheduled workflows) — the
+moment AISStream starts delivering data again, detection will resume on
+its own with no redeploy or config change required. To check whether it's
+recovered, look at the most recent run's log for
+`[ais] collected N vessel fixes` with `N > 0`.
+
 ## Tests
 
 ```bash
