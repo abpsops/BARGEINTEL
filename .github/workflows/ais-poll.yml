@@ -6,6 +6,11 @@ on:
     # so treat this as "roughly every 15 minutes," not a precise clock.
     - cron: "*/15 * * * *"
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "worker/**"
+      - ".github/workflows/ais-poll.yml"
 
 jobs:
   poll:
