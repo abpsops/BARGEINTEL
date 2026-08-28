@@ -88,3 +88,4 @@ Thresholds live at the top of `src/detection.ts`:
 Tightening these (smaller distance, longer minimum duration) reduces false
 positives at the cost of missing shorter or looser encounters.
 
+# retest with fresh AISStream key
