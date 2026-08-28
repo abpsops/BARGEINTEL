@@ -1,10 +1,13 @@
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Plus, X, AlertTriangle } from "lucide-react"
+import { Plus, X, AlertTriangle, UploadCloud, Download } from "lucide-react"
 import { getDataProvider } from "@/services/data"
 import PageHeader from "@/components/ui/PageHeader"
 import { isValidIMO } from "@/lib/imo"
 import { formatDateDisplay } from "@/lib/dates"
+import BargeSTSUploadModal from "@/components/BargeSTSUploadModal"
+import { exportToCsv } from "@/lib/exportCsv"
+import type { Barge } from "@/types"
 
 export default function Barges() {
   const provider = getDataProvider()
@@ -13,12 +16,31 @@ export default function Barges() {
   const [competitorId, setCompetitorId] = useState("")
   const [bulkText, setBulkText] = useState("")
   const [namePrefix, setNamePrefix] = useState("Barge")
+  const [uploadBarge, setUploadBarge] = useState<Barge | null>(null)
 
   const { data: competitors = [] } = useQuery({ queryKey: ["competitors"], queryFn: () => provider.getCompetitors() })
   const { data: barges = [] } = useQuery({ queryKey: ["barges"], queryFn: () => provider.getBarges() })
   const { data: operations = [] } = useQuery({ queryKey: ["operations-all"], queryFn: () => provider.getSTSOperations({}) })
 
   const competitorName = (id: string) => competitors.find((c) => c.id === id)?.name ?? "—"
+
+  const downloadAllBargeSTS = () => {
+    const bunkeringOps = operations.filter((o) => o.operation_type === "STS_BUNKERING")
+    exportToCsv(
+      "bargeintel_all_barges_sts_bunkering.csv",
+      bunkeringOps
+        .slice()
+        .sort((a, b) => (a.barge_name < b.barge_name ? -1 : a.barge_name > b.barge_name ? 1 : 0))
+        .map((o) => ({
+          Competitor: o.competitor_name,
+          Barge: o.barge_name,
+          "Barge IMO": o.barge_imo,
+          Vessel: o.receiving_vessel_name,
+          Date: o.operation_date,
+          Time: o.start_time,
+        }))
+    )
+  }
 
   const parsedLines = bulkText
     .split("\n")
@@ -59,12 +81,20 @@ export default function Barges() {
         title="Barges"
         subtitle="Competitor barge fleet, tracked by IMO."
         actions={
-          <button
-            onClick={() => setShowBulk((s) => !s)}
-            className="flex items-center gap-1.5 rounded bg-signal-bunker/15 border border-signal-bunker/40 text-signal-bunker px-3 py-1.5 text-xs hover:bg-signal-bunker/25 transition-colors focus-ring"
-          >
-            <Plus size={13} /> Bulk Add Barges
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={downloadAllBargeSTS}
+              className="flex items-center gap-1.5 rounded border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
+            >
+              <Download size={13} /> Download All STS Bunkering Data
+            </button>
+            <button
+              onClick={() => setShowBulk((s) => !s)}
+              className="flex items-center gap-1.5 rounded bg-signal-bunker/15 border border-signal-bunker/40 text-signal-bunker px-3 py-1.5 text-xs hover:bg-signal-bunker/25 transition-colors focus-ring"
+            >
+              <Plus size={13} /> Bulk Add Barges
+            </button>
+          </div>
         }
       />
 
@@ -161,10 +191,19 @@ export default function Barges() {
                     <td className="px-4 py-2.5 text-right font-mono">{s.ops}</td>
                     <td className="px-4 py-2.5 text-right font-mono">{s.uniqueVessels}</td>
                     <td className="px-4 py-2.5 text-xs text-paper-500">{s.latest ? formatDateDisplay(s.latest) : "N/A"}</td>
-                    <td className="px-4 py-2.5 text-right">
-                      <button onClick={() => remove(b.id)} className="text-paper-500 hover:text-signal-crit focus-ring">
-                        <X size={14} />
-                      </button>
+                    <td className="px-4 py-2.5">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => setUploadBarge(b)}
+                          title="Upload STS data for this barge"
+                          className="text-paper-500 hover:text-signal-bunker focus-ring"
+                        >
+                          <UploadCloud size={14} />
+                        </button>
+                        <button onClick={() => remove(b.id)} className="text-paper-500 hover:text-signal-crit focus-ring">
+                          <X size={14} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 )
@@ -180,6 +219,18 @@ export default function Barges() {
           </table>
         </div>
       </div>
+
+      {uploadBarge && (
+        <BargeSTSUploadModal
+          barge={uploadBarge}
+          competitorName={competitorName(uploadBarge.competitor_id)}
+          onClose={() => setUploadBarge(null)}
+          onSaved={() => {
+            qc.invalidateQueries({ queryKey: ["operations-all"] })
+            qc.invalidateQueries({ queryKey: ["sts-analysis"] })
+          }}
+        />
+      )}
     </div>
   )
 }

@@ -152,7 +152,7 @@ export function normalizeRows(
   })
 }
 
-function normalizeDate(raw: string): string | null {
+export function normalizeDate(raw: string): string | null {
   if (!raw) return null
   const trimmed = raw.trim()
   // Already ISO
@@ -167,7 +167,7 @@ function normalizeDate(raw: string): string | null {
   return null
 }
 
-function diffMinutes(start: string, end: string): number | null {
+export function diffMinutes(start: string, end: string): number | null {
   const [sh, sm] = start.split(":").map(Number)
   const [eh, em] = end.split(":").map(Number)
   if ([sh, sm, eh, em].some((n) => Number.isNaN(n))) return null
@@ -177,3 +177,92 @@ function diffMinutes(start: string, end: string): number | null {
 }
 
 export const IMPORT_FIELDS = Object.keys(COLUMN_ALIASES) as (keyof typeof COLUMN_ALIASES)[]
+
+/** Field mapping for the single-barge uploader — no barge IMO column needed, since the barge is already selected. */
+export const SINGLE_BARGE_FIELDS = [
+  "receiving_vessel_name",
+  "receiving_vessel_imo",
+  "operation_date",
+  "start_time",
+  "end_time",
+  "operation",
+  "location",
+] as const
+
+export interface SingleBargeRowResult {
+  rowNumber: number
+  valid: boolean
+  errors: string[]
+  keep: boolean // true only for rows classified as STS_BUNKERING
+  operation?: Omit<STSOperation, "id" | "created_at" | "updated_at">
+}
+
+/**
+ * Normalizes rows from a per-barge export (already known which barge —
+ * no IMO column required) and keeps only rows that classify as
+ * STS_BUNKERING. If the source has no operation-type column at all, every
+ * valid row is treated as STS_BUNKERING, since that's the only
+ * classification available to assign.
+ */
+export function normalizeSingleBargeRows(
+  rawRows: Record<string, string>[],
+  mapping: FieldMapping,
+  barge: Barge,
+  competitorName: string,
+  sourceProvider: string
+): SingleBargeRowResult[] {
+  return rawRows.map((row, i) => {
+    const errors: string[] = []
+    const get = (field: keyof typeof COLUMN_ALIASES) => (mapping[field] ? row[mapping[field]!] ?? "" : "")
+
+    const operationDate = normalizeDate(get("operation_date"))
+    if (!operationDate) errors.push("Missing or unparseable date")
+
+    const receivingVesselName = get("receiving_vessel_name").trim()
+    if (!receivingVesselName) errors.push("Missing vessel name")
+
+    if (errors.length > 0) {
+      return { rowNumber: i + 1, valid: false, keep: false, errors }
+    }
+
+    const hasOperationColumn = Boolean(mapping.operation)
+    const rawOpLabel = get("operation").trim()
+    const operationType = hasOperationColumn ? normalizeOperationType(rawOpLabel) : "STS_BUNKERING"
+    const keep = operationType === "STS_BUNKERING"
+
+    const receivingVesselImo = normalizeIMO(get("receiving_vessel_imo")) ?? ""
+    const start = get("start_time").trim() || null
+    const end = get("end_time").trim() || null
+    const duration = start && end ? diffMinutes(start, end) : null
+
+    return {
+      rowNumber: i + 1,
+      valid: true,
+      keep,
+      errors: [],
+      operation: {
+        organization_id: barge.organization_id,
+        barge_id: barge.id,
+        barge_imo: barge.imo,
+        barge_name: barge.name,
+        competitor_id: barge.competitor_id,
+        competitor_name: competitorName,
+        receiving_vessel_id: null,
+        receiving_vessel_imo: receivingVesselImo,
+        receiving_vessel_name: receivingVesselName,
+        operation_date: operationDate!,
+        start_time: start,
+        end_time: end,
+        duration_minutes: duration,
+        location: get("location").trim() || null,
+        latitude: null,
+        longitude: null,
+        operation_type: operationType,
+        raw_operation_label: rawOpLabel || "STS Bunkering",
+        source_provider: sourceProvider,
+        source_record_id: null,
+        confidence: hasOperationColumn ? "high" : "medium",
+      },
+    }
+  })
+}
