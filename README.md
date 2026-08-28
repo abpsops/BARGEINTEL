@@ -168,3 +168,4 @@ information, so proximity + stillness is a strong signal, not proof.
 - [ ] Confirm demo-mode badge is gone in production
 - [ ] RLS verified: a second organization's user cannot see your data
 
+
