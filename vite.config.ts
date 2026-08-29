@@ -18,7 +18,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          leaflet: ['leaflet', 'react-leaflet'],
           charts: ['recharts'],
           xlsx: ['xlsx'],
           pdf: ['jspdf', 'jspdf-autotable'],

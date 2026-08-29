@@ -1,24 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom"
 import { useState } from "react"
-import {
-  Anchor,
-  LayoutDashboard,
-  Radar,
-  Ship,
-  GitCompareArrows,
-  Building2,
-  Sailboat,
-  Upload,
-  ShieldCheck,
-  BookMarked,
-  FileBarChart,
-  Bell,
-  Settings as SettingsIcon,
-  ScrollText,
-  Search,
-  MapPin,
-  BellRing,
-} from "lucide-react"
+import { Anchor, LayoutDashboard, Radar, Building2, Sailboat, FileBarChart, Search } from "lucide-react"
 import { getDataProvider } from "@/services/data"
 import GlobalSearch from "@/components/layout/GlobalSearch"
 
@@ -29,12 +11,7 @@ const NAV_SECTIONS: {
   { label: "", items: [{ to: "/", label: "Dashboard", icon: LayoutDashboard }] },
   {
     label: "Intelligence",
-    items: [
-      { to: "/sts-analysis", label: "Competitor Analysis", icon: Radar },
-      { to: "/vessel-intelligence", label: "Vessel Intelligence", icon: Ship },
-      { to: "/vessel-overlap", label: "Vessel Overlap", icon: GitCompareArrows },
-      { to: "/live-map", label: "Live Map", icon: MapPin },
-    ],
+    items: [{ to: "/sts-analysis", label: "Competitor Analysis", icon: Radar }],
   },
   {
     label: "Fleet",
@@ -44,26 +21,8 @@ const NAV_SECTIONS: {
     ],
   },
   {
-    label: "Data",
-    items: [
-      { to: "/import", label: "Import Data", icon: Upload },
-      { to: "/data-quality", label: "Data Quality", icon: ShieldCheck },
-    ],
-  },
-  {
     label: "Reports",
-    items: [
-      { to: "/watchlists", label: "Watchlists", icon: BookMarked },
-      { to: "/reports", label: "Reports", icon: FileBarChart },
-    ],
-  },
-  {
-    label: "System",
-    items: [
-      { to: "/alerts", label: "Alerts", icon: BellRing },
-      { to: "/settings", label: "Settings", icon: SettingsIcon },
-      { to: "/audit-log", label: "Audit Log", icon: ScrollText },
-    ],
+    items: [{ to: "/reports", label: "Reports", icon: FileBarChart }],
   },
 ]
 
@@ -133,12 +92,8 @@ export default function DashboardLayout() {
             <span>Search vessel, IMO, barge, competitor…</span>
             <kbd className="ml-auto text-[10px] font-mono border border-ink-600 rounded px-1">/</kbd>
           </button>
-          <div className="flex items-center gap-3">
-            <Bell size={16} className="text-paper-500" />
-            <ScrollText size={16} className="text-paper-500" />
-            <div className="h-7 w-7 rounded-full bg-ink-700 flex items-center justify-center text-xs font-mono text-paper-300">
-              OP
-            </div>
+          <div className="h-7 w-7 rounded-full bg-ink-700 flex items-center justify-center text-xs font-mono text-paper-300">
+            OP
           </div>
         </header>
 
