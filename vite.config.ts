@@ -21,6 +21,7 @@ export default defineConfig({
           leaflet: ['leaflet', 'react-leaflet'],
           charts: ['recharts'],
           xlsx: ['xlsx'],
+          pdf: ['jspdf', 'jspdf-autotable'],
           supabase: ['@supabase/supabase-js'],
           vendor: ['react', 'react-dom', 'react-router-dom', '@tanstack/react-query'],
         },

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { UploadCloud, X, CheckCircle2 } from "lucide-react"
 import type { Barge, STSOperation } from "@/types"
 import { getDataProvider } from "@/services/data"
@@ -29,11 +29,13 @@ type PreviewOp = Omit<STSOperation, "id" | "created_at" | "updated_at">
 export default function BargeSTSUploadModal({
   barge,
   competitorName,
+  initialFile,
   onClose,
   onSaved,
 }: {
   barge: Barge
   competitorName: string
+  initialFile?: File
   onClose: () => void
   onSaved: (count: number) => void
 }) {
@@ -73,6 +75,11 @@ export default function BargeSTSUploadModal({
     setMapping(suggestMapping(p.headers))
     setMode("generic")
   }
+
+  useEffect(() => {
+    if (initialFile) onFile(initialFile)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialFile])
 
   const runGenericPreview = () => {
     if (!parsed || !mapping) return
@@ -121,6 +128,10 @@ export default function BargeSTSUploadModal({
                 onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])}
               />
             </label>
+          )}
+
+          {file && mode === "detecting" && (
+            <div className="py-12 text-center text-sm text-paper-500">Analysing {file.name}…</div>
           )}
 
           {mode === "generic" && parsed && mapping && !genericResults && (

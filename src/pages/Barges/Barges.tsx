@@ -1,12 +1,13 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Plus, X, AlertTriangle, UploadCloud, Download } from "lucide-react"
+import { Plus, X, AlertTriangle, FileSpreadsheet, FileText, CheckCircle2 } from "lucide-react"
 import { getDataProvider } from "@/services/data"
 import PageHeader from "@/components/ui/PageHeader"
 import { isValidIMO } from "@/lib/imo"
 import { formatDateDisplay } from "@/lib/dates"
 import BargeSTSUploadModal from "@/components/BargeSTSUploadModal"
-import { exportToCsv } from "@/lib/exportCsv"
+import { exportToXlsx } from "@/lib/exportXlsx"
+import { exportToPdf } from "@/lib/exportPdf"
 import type { Barge } from "@/types"
 
 export default function Barges() {
@@ -16,7 +17,12 @@ export default function Barges() {
   const [competitorId, setCompetitorId] = useState("")
   const [bulkText, setBulkText] = useState("")
   const [namePrefix, setNamePrefix] = useState("Barge")
-  const [uploadBarge, setUploadBarge] = useState<Barge | null>(null)
+
+  // Per-barge: the file attached via "Upload" but not yet analysed.
+  const [pendingFiles, setPendingFiles] = useState<Record<string, File>>({})
+  // Which barge's Analyse modal is currently open.
+  const [analysingBarge, setAnalysingBarge] = useState<Barge | null>(null)
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
   const { data: competitors = [] } = useQuery({ queryKey: ["competitors"], queryFn: () => provider.getCompetitors() })
   const { data: barges = [] } = useQuery({ queryKey: ["barges"], queryFn: () => provider.getBarges() })
@@ -24,21 +30,43 @@ export default function Barges() {
 
   const competitorName = (id: string) => competitors.find((c) => c.id === id)?.name ?? "—"
 
-  const downloadAllBargeSTS = () => {
-    const bunkeringOps = operations.filter((o) => o.operation_type === "STS_BUNKERING")
-    exportToCsv(
-      "bargeintel_all_barges_sts_bunkering.csv",
-      bunkeringOps
-        .slice()
-        .sort((a, b) => (a.barge_name < b.barge_name ? -1 : a.barge_name > b.barge_name ? 1 : 0))
-        .map((o) => ({
-          Competitor: o.competitor_name,
-          Barge: o.barge_name,
-          "Barge IMO": o.barge_imo,
-          Vessel: o.receiving_vessel_name,
-          Date: o.operation_date,
-          Time: o.start_time,
-        }))
+  const allBunkeringRows = () =>
+    operations
+      .filter((o) => o.operation_type === "STS_BUNKERING")
+      .slice()
+      .sort((a, b) => (a.barge_name < b.barge_name ? -1 : a.barge_name > b.barge_name ? 1 : 0))
+
+  const downloadExcel = () => {
+    exportToXlsx(
+      "bargeintel_all_barges_sts_bunkering.xlsx",
+      "STS Bunkering",
+      allBunkeringRows().map((o) => ({
+        Competitor: o.competitor_name,
+        Barge: o.barge_name,
+        "Barge IMO": o.barge_imo,
+        Vessel: o.receiving_vessel_name,
+        Date: o.operation_date,
+        Time: o.start_time ?? "",
+        Location: o.location ?? "",
+      }))
+    )
+  }
+
+  const downloadPdf = () => {
+    const rows = allBunkeringRows()
+    exportToPdf(
+      "bargeintel_all_barges_sts_bunkering.pdf",
+      "BARGEINTEL — All Barges STS Bunkering",
+      ["Competitor", "Barge", "Barge IMO", "Vessel", "Date", "Time", "Location"],
+      rows.map((o) => [
+        o.competitor_name,
+        o.barge_name,
+        o.barge_imo,
+        o.receiving_vessel_name,
+        formatDateDisplay(o.operation_date),
+        o.start_time ?? "",
+        o.location ?? "",
+      ])
     )
   }
 
@@ -75,18 +103,28 @@ export default function Barges() {
     return { ops: ops.length, uniqueVessels, latest }
   }
 
+  const onAttachFile = (bargeId: string, file: File) => {
+    setPendingFiles((prev) => ({ ...prev, [bargeId]: file }))
+  }
+
   return (
     <div>
       <PageHeader
         title="Barges"
-        subtitle="Competitor barge fleet, tracked by IMO."
+        subtitle="Upload each barge's STS export, then Analyse to sort and extract Bunkering events."
         actions={
           <div className="flex items-center gap-2">
             <button
-              onClick={downloadAllBargeSTS}
+              onClick={downloadExcel}
               className="flex items-center gap-1.5 rounded border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
             >
-              <Download size={13} /> Download All STS Bunkering Data
+              <FileSpreadsheet size={13} /> Download All (Excel)
+            </button>
+            <button
+              onClick={downloadPdf}
+              className="flex items-center gap-1.5 rounded border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
+            >
+              <FileText size={13} /> Download All (PDF)
             </button>
             <button
               onClick={() => setShowBulk((s) => !s)}
@@ -158,7 +196,7 @@ export default function Barges() {
             <button
               onClick={submitBulk}
               disabled={!competitorId || validImos.length === 0}
-              className="rounded bg-signal-bunker text-ink-950 px-3 py-1.5 text-xs font-medium disabled:opacity-40"
+              className="rounded bg-signal-bunker text-white px-3 py-1.5 text-xs font-medium disabled:opacity-40"
             >
               Add {validImos.length || ""} Barges
             </button>
@@ -172,45 +210,63 @@ export default function Barges() {
                 <th className="px-4 py-2.5">Competitor</th>
                 <th className="px-4 py-2.5">Barge</th>
                 <th className="px-4 py-2.5">IMO</th>
-                <th className="px-4 py-2.5">MMSI</th>
-                <th className="px-4 py-2.5 text-right">Operations</th>
-                <th className="px-4 py-2.5 text-right">Unique Vessels</th>
+                <th className="px-4 py-2.5 text-right">Bunkering Events</th>
                 <th className="px-4 py-2.5">Last Activity</th>
+                <th className="px-4 py-2.5">STS Data</th>
                 <th className="px-4 py-2.5"></th>
               </tr>
             </thead>
             <tbody>
               {barges.map((b) => {
                 const s = bargeStats(b.id)
+                const pendingFile = pendingFiles[b.id]
                 return (
                   <tr key={b.id} className="border-b border-ink-800 hover:bg-ink-800/60">
                     <td className="px-4 py-2.5 text-paper-300">{competitorName(b.competitor_id)}</td>
                     <td className="px-4 py-2.5">{b.name}</td>
                     <td className="px-4 py-2.5 font-mono text-paper-500">{b.imo}</td>
-                    <td className="px-4 py-2.5 font-mono text-paper-500">{b.mmsi ?? "N/A"}</td>
                     <td className="px-4 py-2.5 text-right font-mono">{s.ops}</td>
-                    <td className="px-4 py-2.5 text-right font-mono">{s.uniqueVessels}</td>
                     <td className="px-4 py-2.5 text-xs text-paper-500">{s.latest ? formatDateDisplay(s.latest) : "N/A"}</td>
                     <td className="px-4 py-2.5">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center gap-2">
+                        <input
+                          ref={(el) => { fileInputRefs.current[b.id] = el }}
+                          type="file"
+                          accept=".csv,.xlsx,.xls"
+                          className="hidden"
+                          onChange={(e) => e.target.files?.[0] && onAttachFile(b.id, e.target.files[0])}
+                        />
                         <button
-                          onClick={() => setUploadBarge(b)}
-                          title="Upload STS data for this barge"
-                          className="text-paper-500 hover:text-signal-bunker focus-ring"
+                          onClick={() => fileInputRefs.current[b.id]?.click()}
+                          className="rounded border border-ink-600 px-2.5 py-1 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
                         >
-                          <UploadCloud size={14} />
+                          Upload
                         </button>
-                        <button onClick={() => remove(b.id)} className="text-paper-500 hover:text-signal-crit focus-ring">
-                          <X size={14} />
+                        <button
+                          onClick={() => pendingFile && setAnalysingBarge(b)}
+                          disabled={!pendingFile}
+                          className="rounded bg-signal-bunker text-white px-2.5 py-1 text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          Analyse
                         </button>
+                        {pendingFile && (
+                          <span className="flex items-center gap-1 text-[11px] text-signal-ok max-w-[140px] truncate" title={pendingFile.name}>
+                            <CheckCircle2 size={12} className="shrink-0" /> {pendingFile.name}
+                          </span>
+                        )}
                       </div>
+                    </td>
+                    <td className="px-4 py-2.5 text-right">
+                      <button onClick={() => remove(b.id)} className="text-paper-500 hover:text-signal-crit focus-ring">
+                        <X size={14} />
+                      </button>
                     </td>
                   </tr>
                 )
               })}
               {barges.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-paper-500 text-sm">
+                  <td colSpan={7} className="px-4 py-8 text-center text-paper-500 text-sm">
                     No barges tracked yet.
                   </td>
                 </tr>
@@ -220,14 +276,20 @@ export default function Barges() {
         </div>
       </div>
 
-      {uploadBarge && (
+      {analysingBarge && pendingFiles[analysingBarge.id] && (
         <BargeSTSUploadModal
-          barge={uploadBarge}
-          competitorName={competitorName(uploadBarge.competitor_id)}
-          onClose={() => setUploadBarge(null)}
+          barge={analysingBarge}
+          competitorName={competitorName(analysingBarge.competitor_id)}
+          initialFile={pendingFiles[analysingBarge.id]}
+          onClose={() => setAnalysingBarge(null)}
           onSaved={() => {
             qc.invalidateQueries({ queryKey: ["operations-all"] })
             qc.invalidateQueries({ queryKey: ["sts-analysis"] })
+            setPendingFiles((prev) => {
+              const next = { ...prev }
+              delete next[analysingBarge.id]
+              return next
+            })
           }}
         />
       )}
