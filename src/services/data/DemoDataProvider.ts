@@ -4,7 +4,7 @@ import { generateDemoDataset } from "./demoData"
 import { fingerprintOperation } from "@/lib/fingerprint"
 import { isWithinRange } from "@/lib/dates"
 
-const STORAGE_KEY = "bargeintel_demo_v2"
+const STORAGE_KEY = "bunkerwatch_demo_v1"
 
 interface Store {
   competitors: Competitor[]

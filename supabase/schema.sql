@@ -1,4 +1,4 @@
--- BARGEINTEL — Supabase / PostgreSQL schema
+-- BunkerWatch — Supabase / PostgreSQL schema
 -- Run this in the Supabase SQL editor (or via `supabase db push`) against a
 -- fresh project. Designed for Supabase Auth + Row Level Security.
 

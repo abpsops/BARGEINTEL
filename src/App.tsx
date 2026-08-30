@@ -11,7 +11,7 @@ import { isSupabaseConfigured } from "@/services/supabase/client"
 
 export default function App() {
   return (
-    <BrowserRouter basename="/BARGEINTEL/">
+    <BrowserRouter basename="/BUNKERWATCH/">
       <AuthGate>
         <Routes>
           <Route element={<DashboardLayout />}>

@@ -1,4 +1,4 @@
-# BARGEINTEL AIS Detection Worker
+# BunkerWatch AIS Detection Worker
 
 Two ways to run STS detection from live AIS data. Pick one:
 

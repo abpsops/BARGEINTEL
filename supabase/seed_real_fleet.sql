@@ -1,4 +1,4 @@
--- BARGEINTEL: bulk load real fleet (23 competitors, 90 barges)
+-- BunkerWatch: bulk load real fleet (23 competitors, 90 barges)
 -- Barge inserts are safe to re-run (ON CONFLICT DO NOTHING on IMO).
 -- Competitor inserts are NOT idempotent — only run this once. If you
 -- need to re-run after a partial failure, delete any partially

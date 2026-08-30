@@ -83,7 +83,7 @@ export default function STSAnalysis() {
   const runExport = () => {
     if (mode === "all") {
       exportToCsv(
-        `bargeintel_sts_${dateFrom}_${dateTo}.csv`,
+        `bunkerwatch_sts_${dateFrom}_${dateTo}.csv`,
         results.map((o) => ({
           Date: o.operation_date,
           Time: o.start_time,
@@ -99,7 +99,7 @@ export default function STSAnalysis() {
       )
     } else {
       exportToCsv(
-        `bargeintel_unique_vessels_${dateFrom}_${dateTo}.csv`,
+        `bunkerwatch_unique_vessels_${dateFrom}_${dateTo}.csv`,
         uniqueVesselRows.map((v) => ({
           Vessel: v.name,
           IMO: v.imo,

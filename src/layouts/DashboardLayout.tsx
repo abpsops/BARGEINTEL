@@ -36,7 +36,7 @@ export default function DashboardLayout() {
         <div className="px-5 py-5">
           <div className="flex items-center gap-2">
             <Anchor className="text-brand-600" size={20} strokeWidth={2} />
-            <span className="font-display text-lg tracking-tight">BARGEINTEL</span>
+            <span className="font-display text-lg tracking-tight">BunkerWatch</span>
           </div>
           <p className="mt-1 text-[11px] text-paper-500 font-mono leading-tight">
             Competitor STS Intelligence

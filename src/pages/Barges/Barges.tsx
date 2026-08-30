@@ -38,7 +38,7 @@ export default function Barges() {
 
   const downloadExcel = () => {
     exportToXlsx(
-      "bargeintel_all_barges_sts_bunkering.xlsx",
+      "bunkerwatch_all_barges_sts_bunkering.xlsx",
       "STS Bunkering",
       allBunkeringRows().map((o) => ({
         Competitor: o.competitor_name,
@@ -55,8 +55,8 @@ export default function Barges() {
   const downloadPdf = () => {
     const rows = allBunkeringRows()
     exportToPdf(
-      "bargeintel_all_barges_sts_bunkering.pdf",
-      "BARGEINTEL — All Barges STS Bunkering",
+      "bunkerwatch_all_barges_sts_bunkering.pdf",
+      "BunkerWatch — All Barges STS Bunkering",
       ["Competitor", "Barge", "Barge IMO", "Vessel", "Date", "Time", "Location"],
       rows.map((o) => [
         o.competitor_name,

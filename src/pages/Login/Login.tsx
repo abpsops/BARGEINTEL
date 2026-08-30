@@ -23,7 +23,7 @@ export default function Login() {
       <div className="w-full max-w-sm">
         <div className="flex items-center gap-2 justify-center mb-8">
           <Anchor className="text-brand-600" size={22} strokeWidth={2} />
-          <span className="font-display text-xl tracking-tight text-paper-100">BARGEINTEL</span>
+          <span className="font-display text-xl tracking-tight text-paper-100">BunkerWatch</span>
         </div>
 
         <form onSubmit={signIn} className="rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-6 space-y-4">

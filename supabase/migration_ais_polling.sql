@@ -1,4 +1,4 @@
--- BARGEINTEL: AIS polling state table
+-- BunkerWatch: AIS polling state table
 -- Run this once in Supabase SQL Editor, after schema.sql.
 --
 -- The scheduled GitHub Actions poller runs as a fresh process every 15

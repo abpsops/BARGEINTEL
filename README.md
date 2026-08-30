@@ -1,8 +1,8 @@
-# BARGEINTEL
+# BunkerWatch
 
 Competitor Barge Intelligence. From IMO Numbers to Vessel-Level Supply Activity.
 
-BARGEINTEL turns the manual "check 30 competitor barge IMOs one at a time"
+BunkerWatch turns the manual "check 30 competitor barge IMOs one at a time"
 workflow into: track competitors → import authorised STS data → filter by
 date/competitor/operation → see every vessel supplied.
 
