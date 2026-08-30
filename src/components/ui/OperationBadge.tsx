@@ -10,7 +10,7 @@ const STYLES: Record<OperationType, string> = {
 export default function OperationBadge({ type }: { type: OperationType }) {
   return (
     <span
-      className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[11px] font-mono whitespace-nowrap ${STYLES[type]}`}
+      className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[11px] font-mono whitespace-nowrap ${STYLES[type]}`}
     >
       {OPERATION_LABELS[type]}
     </span>

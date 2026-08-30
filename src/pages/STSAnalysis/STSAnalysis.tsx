@@ -117,7 +117,7 @@ export default function STSAnalysis() {
       <PageHeader title="Competitor Analysis" subtitle="Which vessels did competitor barges supply, and when?" />
 
       <div className="px-6">
-        <div className="rounded-lg border border-ink-700 bg-ink-900 p-4 flex flex-wrap items-center gap-3">
+        <div className="rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-4 flex flex-wrap items-center gap-3">
           <DateRangeFilter from={dateFrom} to={dateTo} onChange={(f, t) => { setDateFrom(f); setDateTo(t) }} />
           <MultiSelectFilter
             label="Competitor"
@@ -148,11 +148,11 @@ export default function STSAnalysis() {
             onChange={(e) => setVesselQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && runAnalysis()}
             placeholder="Receiving vessel / IMO…"
-            className="bg-ink-800 border border-ink-600 rounded px-2.5 py-1.5 text-xs w-48 focus-ring"
+            className="bg-ink-800 border border-ink-600 rounded-md px-2.5 py-1.5 text-xs w-48 focus-ring"
           />
           <button
             onClick={runAnalysis}
-            className="ml-auto rounded bg-signal-bunker text-ink-950 px-5 py-2 text-xs font-semibold tracking-wide hover:bg-signal-bunker/90 transition-colors focus-ring"
+            className="ml-auto rounded-md bg-brand-500 text-white px-5 py-2 text-xs font-semibold tracking-wide hover:bg-signal-bunker/90 transition-colors focus-ring"
           >
             RUN ANALYSIS
           </button>
@@ -164,7 +164,7 @@ export default function STSAnalysis() {
         </p>
 
         {!hasRun && (
-          <div className="mt-4 rounded-lg border border-ink-700 bg-ink-900 px-4 py-10 text-center">
+          <div className="mt-4 rounded-xl border border-ink-700 bg-ink-900 shadow-sm px-4 py-10 text-center">
             <p className="text-sm text-paper-300">Set a date range above and press Run Analysis.</p>
             <p className="mt-1 text-xs text-paper-500">
               With no Competitor or Barge selected, every tracked barge is included.
@@ -182,7 +182,7 @@ export default function STSAnalysis() {
         </div>
 
         <div className="mt-5 flex items-center justify-between">
-          <div className="flex rounded border border-ink-600 overflow-hidden">
+          <div className="flex rounded-md border border-ink-600 overflow-hidden">
             <button
               onClick={() => setMode("all")}
               className={`px-3 py-1.5 text-xs ${mode === "all" ? "bg-ink-700 text-paper-100" : "text-paper-500 hover:bg-ink-800"}`}
@@ -198,17 +198,17 @@ export default function STSAnalysis() {
           </div>
           <button
             onClick={runExport}
-            className="flex items-center gap-1.5 rounded border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
+            className="flex items-center gap-1.5 rounded-md border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
           >
             <Download size={13} /> Export CSV
           </button>
         </div>
 
-        <div className="mt-3 mb-10 rounded-lg border border-ink-700 bg-ink-900 overflow-hidden">
+        <div className="mt-3 mb-10 rounded-xl border border-ink-700 bg-ink-900 shadow-sm overflow-hidden">
           {mode === "all" ? (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-ink-700 text-left text-[10px] uppercase tracking-wider text-paper-500 font-mono">
+                <tr className="border-b border-ink-700 text-left text-xs font-medium text-paper-500">
                   <th className="px-4 py-2.5">Date</th>
                   <th className="px-4 py-2.5">Time</th>
                   <th className="px-4 py-2.5">Competitor</th>
@@ -251,7 +251,7 @@ export default function STSAnalysis() {
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-ink-700 text-left text-[10px] uppercase tracking-wider text-paper-500 font-mono">
+                <tr className="border-b border-ink-700 text-left text-xs font-medium text-paper-500">
                   <th className="px-4 py-2.5">Vessel</th>
                   <th className="px-4 py-2.5">IMO</th>
                   <th className="px-4 py-2.5 text-right">Operations</th>

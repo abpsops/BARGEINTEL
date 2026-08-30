@@ -132,7 +132,7 @@ function SearchGroup({
 }) {
   return (
     <div className="py-1">
-      <div className="px-4 py-1 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-paper-500 font-mono">
+      <div className="px-4 py-1 flex items-center gap-1.5 text-xs font-medium text-paper-500">
         <Icon size={11} /> {label}
       </div>
       {children}

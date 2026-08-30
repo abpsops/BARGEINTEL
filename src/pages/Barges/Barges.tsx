@@ -116,19 +116,19 @@ export default function Barges() {
           <div className="flex items-center gap-2">
             <button
               onClick={downloadExcel}
-              className="flex items-center gap-1.5 rounded border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
+              className="flex items-center gap-1.5 rounded-md border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
             >
               <FileSpreadsheet size={13} /> Download All (Excel)
             </button>
             <button
               onClick={downloadPdf}
-              className="flex items-center gap-1.5 rounded border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
+              className="flex items-center gap-1.5 rounded-md border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
             >
               <FileText size={13} /> Download All (PDF)
             </button>
             <button
               onClick={() => setShowBulk((s) => !s)}
-              className="flex items-center gap-1.5 rounded bg-signal-bunker/15 border border-signal-bunker/40 text-signal-bunker px-3 py-1.5 text-xs hover:bg-signal-bunker/25 transition-colors focus-ring"
+              className="flex items-center gap-1.5 rounded-md bg-brand-500/10 border border-brand-500/30 text-brand-600 px-3 py-1.5 text-xs hover:bg-brand-500/20 transition-colors focus-ring"
             >
               <Plus size={13} /> Bulk Add Barges
             </button>
@@ -138,16 +138,16 @@ export default function Barges() {
 
       <div className="px-6">
         {showBulk && (
-          <div className="mb-4 rounded-lg border border-ink-700 bg-ink-900 p-4 space-y-3">
+          <div className="mb-4 rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-4 space-y-3">
             <div className="flex gap-3 items-end flex-wrap">
               <div>
-                <label className="block text-[10px] uppercase tracking-wider text-paper-500 font-mono mb-1">
+                <label className="block text-xs font-medium text-paper-500 mb-1">
                   Competitor
                 </label>
                 <select
                   value={competitorId}
                   onChange={(e) => setCompetitorId(e.target.value)}
-                  className="bg-ink-800 border border-ink-600 rounded px-2 py-1.5 text-sm min-w-[200px]"
+                  className="bg-ink-800 border border-ink-600 rounded-md px-2 py-1.5 text-sm min-w-[200px]"
                 >
                   <option value="">Select competitor…</option>
                   {competitors.map((c) => (
@@ -158,19 +158,19 @@ export default function Barges() {
                 </select>
               </div>
               <div>
-                <label className="block text-[10px] uppercase tracking-wider text-paper-500 font-mono mb-1">
+                <label className="block text-xs font-medium text-paper-500 mb-1">
                   Name prefix
                 </label>
                 <input
                   value={namePrefix}
                   onChange={(e) => setNamePrefix(e.target.value)}
-                  className="bg-ink-800 border border-ink-600 rounded px-2 py-1.5 text-sm w-32"
+                  className="bg-ink-800 border border-ink-600 rounded-md px-2 py-1.5 text-sm w-32"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[10px] uppercase tracking-wider text-paper-500 font-mono mb-1">
+              <label className="block text-xs font-medium text-paper-500 mb-1">
                 Paste IMO numbers — one per line
               </label>
               <textarea
@@ -178,7 +178,7 @@ export default function Barges() {
                 onChange={(e) => setBulkText(e.target.value)}
                 rows={6}
                 placeholder={"9876543\n1234567\n2345678"}
-                className="w-full bg-ink-800 border border-ink-600 rounded px-2 py-1.5 text-sm font-mono"
+                className="w-full bg-ink-800 border border-ink-600 rounded-md px-2 py-1.5 text-sm font-mono"
               />
             </div>
 
@@ -196,17 +196,17 @@ export default function Barges() {
             <button
               onClick={submitBulk}
               disabled={!competitorId || validImos.length === 0}
-              className="rounded bg-signal-bunker text-white px-3 py-1.5 text-xs font-medium disabled:opacity-40"
+              className="rounded-md bg-brand-500 text-white px-3 py-1.5 text-xs font-medium disabled:opacity-40"
             >
               Add {validImos.length || ""} Barges
             </button>
           </div>
         )}
 
-        <div className="rounded-lg border border-ink-700 bg-ink-900 overflow-hidden">
+        <div className="rounded-xl border border-ink-700 bg-ink-900 shadow-sm overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-ink-700 text-left text-[10px] uppercase tracking-wider text-paper-500 font-mono">
+              <tr className="border-b border-ink-700 text-left text-xs font-medium text-paper-500">
                 <th className="px-4 py-2.5">Competitor</th>
                 <th className="px-4 py-2.5">Barge</th>
                 <th className="px-4 py-2.5">IMO</th>
@@ -238,14 +238,14 @@ export default function Barges() {
                         />
                         <button
                           onClick={() => fileInputRefs.current[b.id]?.click()}
-                          className="rounded border border-ink-600 px-2.5 py-1 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
+                          className="rounded-md border border-ink-600 px-2.5 py-1 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
                         >
                           Upload
                         </button>
                         <button
                           onClick={() => pendingFile && setAnalysingBarge(b)}
                           disabled={!pendingFile}
-                          className="rounded bg-signal-bunker text-white px-2.5 py-1 text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="rounded-md bg-brand-500 text-white px-2.5 py-1 text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           Analyse
                         </button>

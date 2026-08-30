@@ -6,37 +6,37 @@ export default {
       colors: {
         ink: {
           950: "#FFFFFF",
-          900: "#F7F9FC",
-          800: "#EEF2F7",
-          700: "#E2E8F0",
-          600: "#CBD5E1",
-          500: "#94A3B8",
+          900: "#FAFAFA",
+          800: "#F4F4F5",
+          700: "#E4E4E7",
+          600: "#D4D4D8",
+          500: "#A1A1AA",
         },
         chart: {
-          line: "#E2E8F0",
-          text: "#64748B",
+          line: "#E4E4E7",
+          text: "#71717A",
         },
         signal: {
-          bunker: "#0F8A80",   // deeper radar teal — STS Bunkering, readable on white
-          supply: "#A8721E",   // deeper brass gold — STS Supply
-          warn: "#B45309",
-          crit: "#B91C1C",
-          ok: "#15803D",
+          bunker: "#0D9488",   // teal-600 — STS Bunkering
+          supply: "#B45309",   // amber-700 — STS Supply
+          warn: "#D97706",
+          crit: "#DC2626",
+          ok: "#16A34A",
         },
         paper: {
-          100: "#0B1220",
-          300: "#334155",
-          500: "#64748B",
+          100: "#18181B",
+          300: "#3F3F46",
+          500: "#71717A",
+        },
+        brand: {
+          500: "#6366F1",
+          600: "#4F46E5",
         },
       },
       fontFamily: {
-        display: ["Fraunces", "serif"],
+        display: ["Inter", "system-ui", "sans-serif"],
         sans: ["Inter", "system-ui", "sans-serif"],
         mono: ["IBM Plex Mono", "ui-monospace", "monospace"],
-      },
-      backgroundImage: {
-        "sounding-line":
-          "repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 8px)",
       },
     },
   },

@@ -62,8 +62,8 @@ export default function Dashboard() {
       </div>
 
       <div className="px-6 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 rounded-lg border border-ink-700 bg-ink-900 p-4">
-          <div className="text-xs uppercase tracking-wider text-paper-500 font-mono mb-3">
+        <div className="lg:col-span-2 rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-4">
+          <div className="text-xs font-medium text-paper-500 mb-3">
             STS Activity by Day
           </div>
           <ResponsiveContainer width="100%" height={220}>
@@ -80,8 +80,8 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
 
-        <div className="rounded-lg border border-ink-700 bg-ink-900 p-4">
-          <div className="text-xs uppercase tracking-wider text-paper-500 font-mono mb-3">
+        <div className="rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-4">
+          <div className="text-xs font-medium text-paper-500 mb-3">
             Activity by Competitor
           </div>
           <div className="space-y-2">
@@ -90,7 +90,7 @@ export default function Dashboard() {
               return (
                 <div key={c.name} className="flex items-center gap-2">
                   <span className="w-10 text-xs font-mono text-paper-300">{c.name}</span>
-                  <div className="flex-1 h-2 rounded bg-ink-700 overflow-hidden">
+                  <div className="flex-1 h-2 rounded-md bg-ink-700 overflow-hidden">
                     <div
                       className="h-full bg-signal-supply"
                       style={{ width: `${(c.count / max) * 100}%` }}
@@ -109,7 +109,7 @@ export default function Dashboard() {
           Latest observed activity:{" "}
           {latestActivity ? formatDateDisplay(latestActivity) : "No data available."}
         </span>
-        <Link to="/sts-analysis" className="text-signal-bunker hover:underline">
+        <Link to="/sts-analysis" className="text-brand-600 hover:underline">
           Run competitor analysis →
         </Link>
       </div>

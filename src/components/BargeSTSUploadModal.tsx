@@ -139,7 +139,7 @@ export default function BargeSTSUploadModal({
               <div className="text-xs text-paper-500 mb-3">
                 {file?.name} · {parsed.rows.length} rows detected · format not recognized, map columns manually
               </div>
-              <div className="text-[10px] uppercase tracking-wider text-paper-500 font-mono mb-2">Field Mapping</div>
+              <div className="text-xs font-medium text-paper-500 mb-2">Field Mapping</div>
               <div className="space-y-2">
                 {SINGLE_BARGE_FIELDS.map((field) => (
                   <div key={field} className="flex items-center justify-between gap-2">
@@ -147,7 +147,7 @@ export default function BargeSTSUploadModal({
                     <select
                       value={mapping[field] ?? ""}
                       onChange={(e) => setMapping({ ...mapping, [field]: e.target.value || null })}
-                      className="flex-1 bg-ink-800 border border-ink-600 rounded px-2 py-1 text-xs"
+                      className="flex-1 bg-ink-800 border border-ink-600 rounded-md px-2 py-1 text-xs"
                     >
                       <option value="">— not mapped —</option>
                       {parsed.headers.map((h) => (
@@ -159,7 +159,7 @@ export default function BargeSTSUploadModal({
                   </div>
                 ))}
               </div>
-              <button onClick={runGenericPreview} className="mt-4 rounded bg-signal-bunker text-white px-4 py-2 text-xs font-medium">
+              <button onClick={runGenericPreview} className="mt-4 rounded-md bg-brand-500 text-white px-4 py-2 text-xs font-medium">
                 Sort & Preview
               </button>
             </div>
@@ -178,10 +178,10 @@ export default function BargeSTSUploadModal({
                   </span>
                 )}
               </div>
-              <div className="rounded border border-ink-700 overflow-hidden max-h-64 overflow-y-auto scrollbar-thin">
+              <div className="rounded-md border border-ink-700 overflow-hidden max-h-64 overflow-y-auto scrollbar-thin">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="border-b border-ink-700 text-left text-[10px] uppercase tracking-wider text-paper-500 font-mono sticky top-0 bg-ink-900">
+                    <tr className="border-b border-ink-700 text-left text-xs font-medium text-paper-500 sticky top-0 bg-ink-900">
                       <th className="px-3 py-2">Vessel</th>
                       <th className="px-3 py-2">Date</th>
                       <th className="px-3 py-2">Time</th>
@@ -210,7 +210,7 @@ export default function BargeSTSUploadModal({
               <button
                 onClick={confirmSave}
                 disabled={busy || previewOps.length === 0}
-                className="mt-4 rounded bg-signal-bunker text-white px-4 py-2 text-xs font-medium disabled:opacity-40"
+                className="mt-4 rounded-md bg-brand-500 text-white px-4 py-2 text-xs font-medium disabled:opacity-40"
               >
                 {busy ? "Saving…" : `Save ${previewOps.length} Records to ${barge.name}`}
               </button>

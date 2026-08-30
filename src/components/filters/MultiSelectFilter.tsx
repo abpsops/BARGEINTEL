@@ -31,18 +31,18 @@ export default function MultiSelectFilter({
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1.5 rounded border border-ink-600 bg-ink-800 px-2.5 py-1.5 text-xs text-paper-200 hover:border-ink-500 transition-colors focus-ring"
+        className="flex items-center gap-1.5 rounded-md border border-ink-600 bg-ink-800 px-2.5 py-1.5 text-xs text-paper-200 hover:border-ink-500 transition-colors focus-ring"
       >
         {label}
         {selected.length > 0 && (
-          <span className="rounded bg-signal-bunker/20 text-signal-bunker px-1 text-[10px] font-mono">
+          <span className="rounded-md bg-brand-500/15 text-brand-600 px-1 text-[10px] font-mono">
             {selected.length}
           </span>
         )}
         <ChevronDown size={12} />
       </button>
       {open && (
-        <div className="absolute z-20 mt-1 w-56 max-h-64 overflow-y-auto scrollbar-thin rounded border border-ink-600 bg-ink-800 shadow-xl">
+        <div className="absolute z-20 mt-1 w-56 max-h-64 overflow-y-auto scrollbar-thin rounded-md border border-ink-600 bg-ink-800 shadow-xl">
           {options.length === 0 && <div className="px-3 py-2 text-xs text-paper-500">No options</div>}
           {options.map((opt) => (
             <label
@@ -53,7 +53,7 @@ export default function MultiSelectFilter({
                 type="checkbox"
                 checked={selected.includes(opt.value)}
                 onChange={() => toggle(opt.value)}
-                className="accent-signal-bunker"
+                className="accent-brand-500"
               />
               {opt.label}
             </label>

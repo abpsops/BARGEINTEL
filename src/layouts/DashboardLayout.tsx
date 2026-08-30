@@ -35,20 +35,20 @@ export default function DashboardLayout() {
       <aside className="w-60 shrink-0 border-r border-ink-700 bg-ink-900 flex flex-col">
         <div className="px-5 py-5">
           <div className="flex items-center gap-2">
-            <Anchor className="text-signal-bunker" size={20} strokeWidth={2} />
+            <Anchor className="text-brand-600" size={20} strokeWidth={2} />
             <span className="font-display text-lg tracking-tight">BARGEINTEL</span>
           </div>
           <p className="mt-1 text-[11px] text-paper-500 font-mono leading-tight">
             Competitor STS Intelligence
           </p>
         </div>
-        <div className="sounding-rule mx-5 text-ink-600" />
+        <div className="mx-5 h-px bg-ink-700" />
 
         <nav className="flex-1 overflow-y-auto scrollbar-thin px-3 py-4 space-y-5">
           {NAV_SECTIONS.map((section, i) => (
             <div key={i}>
               {section.label && (
-                <div className="px-2 mb-1.5 text-[10px] uppercase tracking-wider text-paper-500 font-mono">
+                <div className="px-2 mb-1.5 text-xs font-medium text-paper-500">
                   {section.label}
                 </div>
               )}
@@ -59,7 +59,7 @@ export default function DashboardLayout() {
                     to={item.to}
                     end={item.to === "/"}
                     className={({ isActive }) =>
-                      `flex items-center gap-2.5 rounded px-2.5 py-1.5 text-sm transition-colors focus-ring ${
+                      `flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors focus-ring ${
                         isActive
                           ? "bg-ink-700 text-paper-100"
                           : "text-paper-300 hover:bg-ink-800 hover:text-paper-100"
@@ -76,7 +76,7 @@ export default function DashboardLayout() {
         </nav>
 
         {provider.isDemo && (
-          <div className="mx-3 mb-3 rounded border border-signal-warn/40 bg-signal-warn/10 px-2.5 py-2 text-[11px] text-signal-warn font-mono">
+          <div className="mx-3 mb-3 rounded-md border border-signal-warn/40 bg-signal-warn/10 px-2.5 py-2 text-[11px] text-signal-warn font-mono">
             DEMO DATA — no Supabase connected
           </div>
         )}
@@ -86,11 +86,11 @@ export default function DashboardLayout() {
         <header className="h-14 shrink-0 border-b border-ink-700 flex items-center justify-between px-6 bg-ink-900/60 backdrop-blur">
           <button
             onClick={() => setSearchOpen(true)}
-            className="flex items-center gap-2 rounded border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm text-paper-500 hover:text-paper-300 hover:border-ink-500 transition-colors w-80 focus-ring"
+            className="flex items-center gap-2 rounded-md border border-ink-600 bg-ink-800 px-3 py-1.5 text-sm text-paper-500 hover:text-paper-300 hover:border-ink-500 transition-colors w-80 focus-ring"
           >
             <Search size={14} />
             <span>Search vessel, IMO, barge, competitor…</span>
-            <kbd className="ml-auto text-[10px] font-mono border border-ink-600 rounded px-1">/</kbd>
+            <kbd className="ml-auto text-[10px] font-mono border border-ink-600 rounded-md px-1">/</kbd>
           </button>
           <div className="h-7 w-7 rounded-full bg-ink-700 flex items-center justify-center text-xs font-mono text-paper-300">
             OP

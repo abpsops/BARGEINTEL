@@ -82,12 +82,12 @@ export default function Reports() {
 
 function ReportCard({ title, description, onExport }: { title: string; description: string; onExport: () => void }) {
   return (
-    <div className="rounded-lg border border-ink-700 bg-ink-900 p-4">
+    <div className="rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-4">
       <div className="font-display text-base">{title}</div>
       <p className="mt-1 text-xs text-paper-500">{description}</p>
       <button
         onClick={onExport}
-        className="mt-4 flex items-center gap-1.5 rounded border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
+        className="mt-4 flex items-center gap-1.5 rounded-md border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
       >
         <Download size={13} /> Export CSV
       </button>

@@ -53,7 +53,7 @@ export default function Competitors() {
         actions={
           <button
             onClick={() => setShowForm((s) => !s)}
-            className="flex items-center gap-1.5 rounded bg-signal-bunker/15 border border-signal-bunker/40 text-signal-bunker px-3 py-1.5 text-xs hover:bg-signal-bunker/25 transition-colors focus-ring"
+            className="flex items-center gap-1.5 rounded-md bg-brand-500/10 border border-brand-500/30 text-brand-600 px-3 py-1.5 text-xs hover:bg-brand-500/20 transition-colors focus-ring"
           >
             <Plus size={13} /> Add Competitor
           </button>
@@ -62,7 +62,7 @@ export default function Competitors() {
 
       <div className="px-6">
         {showForm && (
-          <div className="mb-4 rounded-lg border border-ink-700 bg-ink-900 p-4 flex flex-wrap items-end gap-3">
+          <div className="mb-4 rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-4 flex flex-wrap items-end gap-3">
             <Field label="Name">
               <input value={name} onChange={(e) => setName(e.target.value)} className="input" placeholder="Al Marwan Bunkering" />
             </Field>
@@ -72,17 +72,17 @@ export default function Competitors() {
             <Field label="Description">
               <input value={description} onChange={(e) => setDescription(e.target.value)} className="input w-64" placeholder="Optional" />
             </Field>
-            <button onClick={submit} className="rounded bg-signal-bunker text-ink-950 px-3 py-1.5 text-xs font-medium">
+            <button onClick={submit} className="rounded-md bg-brand-500 text-white px-3 py-1.5 text-xs font-medium">
               Save
             </button>
           </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 rounded-lg border border-ink-700 bg-ink-900 overflow-hidden">
+          <div className="lg:col-span-2 rounded-xl border border-ink-700 bg-ink-900 shadow-sm overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-ink-700 text-left text-[10px] uppercase tracking-wider text-paper-500 font-mono">
+                <tr className="border-b border-ink-700 text-left text-xs font-medium text-paper-500">
                   <th className="px-4 py-2.5">Competitor</th>
                   <th className="px-4 py-2.5">Code</th>
                   <th className="px-4 py-2.5 text-right">Barges</th>
@@ -136,7 +136,7 @@ export default function Competitors() {
             </table>
           </div>
 
-          <div className="rounded-lg border border-ink-700 bg-ink-900 p-4">
+          <div className="rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-4">
             {!selected && <div className="text-sm text-paper-500">Select a competitor to view its profile.</div>}
             {selected && (
               <div>
@@ -167,7 +167,7 @@ export default function Competitors() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-[10px] uppercase tracking-wider text-paper-500 font-mono mb-1">{label}</label>
+      <label className="block text-xs font-medium text-paper-500 mb-1">{label}</label>
       {children}
     </div>
   )
@@ -175,7 +175,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded border border-ink-700 px-2.5 py-2">
+    <div className="rounded-md border border-ink-700 px-2.5 py-2">
       <div className="text-[10px] text-paper-500 font-mono uppercase">{label}</div>
       <div className="font-mono text-paper-100">{value}</div>
     </div>
