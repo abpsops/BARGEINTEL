@@ -11,6 +11,12 @@ export interface PdfExportOptions {
   /** Shown under the title, e.g. "Tracked period: 29 Aug 2026 – 31 Aug 2026". */
   dateRangeLabel?: string
   /**
+   * 0-based indices into `rows` after which a visual separator line is
+   * drawn under that row — e.g. the last row of each barge's block of
+   * entries, so one barge's rows are visually set off from the next.
+   */
+  groupBreakAfterRows?: number[]
+  /**
    * When provided, a final summary page is appended after the main table:
    * a "Vessels Supplied by Competitor" breakdown and an "Operations by
    * Location" breakdown (e.g. Fujairah, Khor Fakkan, Salalah, Sohar,
@@ -44,12 +50,23 @@ export function exportToPdf(
   }
   doc.setTextColor(0, 0, 0)
 
+  const groupBreaks = new Set(options?.groupBreakAfterRows ?? [])
+
   autoTable(doc, {
     startY: options?.dateRangeLabel ? 31 : 26,
     head: [columns],
     body: rows.map((r) => r.map((c) => (c === null || c === undefined ? "" : String(c)))),
     styles: { fontSize: 8 },
     headStyles: { fillColor: [15, 138, 128] },
+    didDrawCell: (data) => {
+      if (data.section === "body" && groupBreaks.has(data.row.index)) {
+        doc.setDrawColor(15, 138, 128)
+        doc.setLineWidth(0.6)
+        doc.line(data.cell.x, data.cell.y + data.cell.height, data.cell.x + data.cell.width, data.cell.y + data.cell.height)
+        doc.setLineWidth(0.1)
+        doc.setDrawColor(0, 0, 0)
+      }
+    },
   })
 
   if (options?.summary) {

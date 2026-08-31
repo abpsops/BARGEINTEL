@@ -61,6 +61,12 @@ export default function Barges() {
       rows.map((o) => o.operation_date),
       formatDateDisplay
     )
+    // A separator line is drawn under the last row of each barge's block of
+    // entries (rows are already sorted by barge_name), so one barge's
+    // operations are visually set off from the next.
+    const groupBreakAfterRows = rows
+      .map((o, i) => (i < rows.length - 1 && o.barge_id !== rows[i + 1].barge_id ? i : -1))
+      .filter((i) => i >= 0)
 
     exportToPdf(
       "bunkerwatch_all_barges_sts_bunkering.pdf",
@@ -77,6 +83,7 @@ export default function Barges() {
       ]),
       {
         dateRangeLabel,
+        groupBreakAfterRows,
         summary: {
           byCompetitor: byCompetitor.rows,
           byLocation: byLocation.rows,
