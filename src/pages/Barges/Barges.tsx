@@ -7,7 +7,7 @@ import { isValidIMO } from "@/lib/imo"
 import { formatDateDisplay } from "@/lib/dates"
 import BargeSTSUploadModal from "@/components/BargeSTSUploadModal"
 import { exportToXlsx } from "@/lib/exportXlsx"
-import { exportToPdf } from "@/lib/exportPdf"
+import { exportToPdf, buildPdfSummary, buildDateRangeLabel } from "@/lib/exportPdf"
 import type { Barge } from "@/types"
 
 export default function Barges() {
@@ -54,6 +54,14 @@ export default function Barges() {
 
   const downloadPdf = () => {
     const rows = allBunkeringRows()
+    const vesselKey = (o: (typeof rows)[number]) => o.receiving_vessel_imo || o.receiving_vessel_name
+    const byCompetitor = buildPdfSummary(rows, (o) => o.competitor_name, vesselKey)
+    const byLocation = buildPdfSummary(rows, (o) => o.location || "Unknown", vesselKey)
+    const dateRangeLabel = buildDateRangeLabel(
+      rows.map((o) => o.operation_date),
+      formatDateDisplay
+    )
+
     exportToPdf(
       "bunkerwatch_all_barges_sts_bunkering.pdf",
       "BunkerWatch — All Barges STS Bunkering",
@@ -66,7 +74,16 @@ export default function Barges() {
         formatDateDisplay(o.operation_date),
         o.start_time ?? "",
         o.location ?? "",
-      ])
+      ]),
+      {
+        dateRangeLabel,
+        summary: {
+          byCompetitor: byCompetitor.rows,
+          byLocation: byLocation.rows,
+          totalOperations: byCompetitor.totalOperations,
+          totalVessels: byCompetitor.totalVessels,
+        },
+      }
     )
   }
 
