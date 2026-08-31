@@ -87,6 +87,11 @@ export class SupabaseDataProvider implements MaritimeDataProvider {
     return data as STSOperation[]
   }
 
+  async deleteOperationsByBarge(bargeId: string): Promise<void> {
+    const { error } = await this.client().from("sts_operations").delete().eq("barge_id", bargeId)
+    if (error) throw error
+  }
+
   async importOperations(
     rows: Omit<STSOperation, "id" | "created_at" | "updated_at">[]
   ): Promise<{ imported: number; skippedDuplicates: number }> {

@@ -162,6 +162,12 @@ export class DemoDataProvider implements MaritimeDataProvider {
     })
   }
 
+  async deleteOperationsByBarge(bargeId: string): Promise<void> {
+    const s = getStore()
+    s.operations = s.operations.filter((op) => op.barge_id !== bargeId)
+    persist(s)
+  }
+
   async importOperations(
     rows: Omit<STSOperation, "id" | "created_at" | "updated_at">[]
   ): Promise<{ imported: number; skippedDuplicates: number }> {

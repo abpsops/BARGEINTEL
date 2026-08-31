@@ -31,6 +31,13 @@ export interface MaritimeDataProvider {
 
   getSTSOperations(filters: Partial<STSFilters>): Promise<STSOperation[]>
 
+  /**
+   * Deletes every STS operation record imported for a single barge — used
+   * by the "Clear All" action on the Barges page to reset that barge's
+   * analysed data back to zero without deleting the barge itself.
+   */
+  deleteOperationsByBarge(bargeId: string): Promise<void>
+
   importOperations(rows: Omit<STSOperation, "id" | "created_at" | "updated_at">[]): Promise<{
     imported: number
     skippedDuplicates: number

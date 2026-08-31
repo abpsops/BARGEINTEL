@@ -1,6 +1,6 @@
 import { useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Plus, X, AlertTriangle, FileSpreadsheet, FileText, CheckCircle2 } from "lucide-react"
+import { Plus, X, AlertTriangle, FileSpreadsheet, FileText, CheckCircle2, RotateCcw } from "lucide-react"
 import { getDataProvider } from "@/services/data"
 import PageHeader from "@/components/ui/PageHeader"
 import { isValidIMO } from "@/lib/imo"
@@ -131,6 +131,43 @@ export default function Barges() {
     setPendingFiles((prev) => ({ ...prev, [bargeId]: file }))
   }
 
+  // Resets a single barge's analyser back to zero: deletes every imported
+  // STS operation tied to it and clears any file staged but not yet
+  // analysed. The barge record itself (name, IMO, competitor) is untouched.
+  const clearBarge = async (b: Barge) => {
+    const s = bargeStats(b.id)
+    const hasPending = !!pendingFiles[b.id]
+    if (s.ops === 0 && !hasPending) return
+    const confirmed = window.confirm(
+      `Clear all analysed data for "${b.name}"? This deletes ${s.ops} bunkering event${s.ops === 1 ? "" : "s"} imported for this barge and cannot be undone.`
+    )
+    if (!confirmed) return
+    await provider.deleteOperationsByBarge(b.id)
+    setPendingFiles((prev) => {
+      const next = { ...prev }
+      delete next[b.id]
+      return next
+    })
+    qc.invalidateQueries({ queryKey: ["operations-all"] })
+    qc.invalidateQueries({ queryKey: ["sts-analysis"] })
+  }
+
+  // Resets EVERY barge's analyser back to zero in one action: deletes all
+  // imported STS operations across all barges and clears any files staged
+  // but not yet analysed. Barge records themselves are untouched.
+  const clearAllBarges = async () => {
+    const totalOps = operations.filter((o) => o.operation_type === "STS_BUNKERING").length
+    if (totalOps === 0 && Object.keys(pendingFiles).length === 0) return
+    const confirmed = window.confirm(
+      `Clear ALL analysed data for every barge? This deletes ${totalOps} bunkering event${totalOps === 1 ? "" : "s"} across all ${barges.length} barges and cannot be undone.`
+    )
+    if (!confirmed) return
+    await Promise.all(barges.map((b) => provider.deleteOperationsByBarge(b.id)))
+    setPendingFiles({})
+    qc.invalidateQueries({ queryKey: ["operations-all"] })
+    qc.invalidateQueries({ queryKey: ["sts-analysis"] })
+  }
+
   return (
     <div>
       <PageHeader
@@ -149,6 +186,13 @@ export default function Barges() {
               className="flex items-center gap-1.5 rounded-md border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
             >
               <FileText size={13} /> Download All (PDF)
+            </button>
+            <button
+              onClick={clearAllBarges}
+              title="Reset every barge's analysed data back to 0"
+              className="flex items-center gap-1.5 rounded-md border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:border-signal-crit/40 hover:text-signal-crit focus-ring"
+            >
+              <RotateCcw size={13} /> Clear All
             </button>
             <button
               onClick={() => setShowBulk((s) => !s)}
@@ -278,6 +322,14 @@ export default function Barges() {
                             <CheckCircle2 size={12} className="shrink-0" /> {pendingFile.name}
                           </span>
                         )}
+                        <button
+                          onClick={() => clearBarge(b)}
+                          disabled={s.ops === 0 && !pendingFile}
+                          title="Reset this barge's analysed data back to 0"
+                          className="ml-auto flex items-center gap-1 rounded-md border border-ink-600 px-2.5 py-1 text-xs text-paper-500 hover:border-signal-crit/40 hover:text-signal-crit focus-ring disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-ink-600 disabled:hover:text-paper-500"
+                        >
+                          <RotateCcw size={12} /> Reset
+                        </button>
                       </div>
                     </td>
                     <td className="px-4 py-2.5 text-right">
