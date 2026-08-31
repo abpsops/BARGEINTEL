@@ -130,33 +130,49 @@ export function extractBunkeringEvents(rows: ShipTrackRow[]): BunkeringExtractio
   return results
 }
 
+// AIS/ship-tracking timestamps are recorded in UTC; Fujairah operations run
+// on Asia/Dubai time (a fixed UTC+4 offset, no daylight saving), so convert
+// before splitting into date/time strings rather than showing raw UTC.
+function toDubaiDateTimeParts(date: Date): { date: string; time: string } {
+  const shifted = new Date(date.getTime() + 4 * 60 * 60 * 1000)
+  const y = shifted.getUTCFullYear()
+  const mo = String(shifted.getUTCMonth() + 1).padStart(2, "0")
+  const d = String(shifted.getUTCDate()).padStart(2, "0")
+  const h = String(shifted.getUTCHours()).padStart(2, "0")
+  const mi = String(shifted.getUTCMinutes()).padStart(2, "0")
+  return { date: `${y}-${mo}-${d}`, time: `${h}:${mi}` }
+}
+
 export function toSTSOperations(
   extractions: BunkeringExtraction[],
   barge: Barge,
   competitorName: string,
   sourceFilename: string
 ): Omit<STSOperation, "id" | "created_at" | "updated_at">[] {
-  return extractions.map((e) => ({
-    organization_id: barge.organization_id,
-    barge_id: barge.id,
-    barge_imo: barge.imo,
-    barge_name: barge.name,
-    competitor_id: barge.competitor_id,
-    competitor_name: competitorName,
-    receiving_vessel_id: null,
-    receiving_vessel_imo: "",
-    receiving_vessel_name: e.vesselName,
-    operation_date: e.timestamp.toISOString().slice(0, 10),
-    start_time: e.timestamp.toISOString().slice(11, 16),
-    end_time: null,
-    duration_minutes: null,
-    location: e.location,
-    latitude: e.latitude,
-    longitude: e.longitude,
-    operation_type: "STS_BUNKERING",
-    raw_operation_label: "STS Operation Bunkering",
-    source_provider: sourceFilename,
-    source_record_id: null,
-    confidence: "high",
-  }))
+  return extractions.map((e) => {
+    const { date, time } = toDubaiDateTimeParts(e.timestamp)
+    return {
+      organization_id: barge.organization_id,
+      barge_id: barge.id,
+      barge_imo: barge.imo,
+      barge_name: barge.name,
+      competitor_id: barge.competitor_id,
+      competitor_name: competitorName,
+      receiving_vessel_id: null,
+      receiving_vessel_imo: "",
+      receiving_vessel_name: e.vesselName,
+      operation_date: date,
+      start_time: time,
+      end_time: null,
+      duration_minutes: null,
+      location: e.location,
+      latitude: e.latitude,
+      longitude: e.longitude,
+      operation_type: "STS_BUNKERING",
+      raw_operation_label: "STS Operation Bunkering",
+      source_provider: sourceFilename,
+      source_record_id: null,
+      confidence: "high",
+    }
+  })
 }

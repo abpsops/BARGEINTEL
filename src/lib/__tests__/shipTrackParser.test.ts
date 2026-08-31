@@ -104,4 +104,30 @@ describe("toSTSOperations", () => {
     expect(ops[0].receiving_vessel_imo).toBe("")
     expect(ops[0].confidence).toBe("high")
   })
+
+  it("converts the UTC timestamp to Asia/Dubai local time (+4h) rather than showing raw UTC", () => {
+    const rows = [
+      row({
+        name: "ANDES",
+        narrative: "STS Operation Bunkering with ANDES\\n19 Aug 2026 09:30",
+        timestamp: new Date("2026-08-19T09:30:49.999Z"),
+      }),
+    ]
+    const ops = toSTSOperations(extractBunkeringEvents(rows), testBarge, "OMTI", "test.xlsx")
+    expect(ops[0].operation_date).toBe("2026-08-19")
+    expect(ops[0].start_time).toBe("13:30")
+  })
+
+  it("rolls over to the next local date when the UTC time is late enough that +4h crosses midnight", () => {
+    const rows = [
+      row({
+        name: "SAL",
+        narrative: "STS Operation Bunkering with SAL\\n21 Aug 2026 20:22",
+        timestamp: new Date("2026-08-21T20:22:52.999Z"),
+      }),
+    ]
+    const ops = toSTSOperations(extractBunkeringEvents(rows), testBarge, "OMTI", "test.xlsx")
+    expect(ops[0].operation_date).toBe("2026-08-22")
+    expect(ops[0].start_time).toBe("00:22")
+  })
 })
