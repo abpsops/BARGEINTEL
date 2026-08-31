@@ -64,7 +64,7 @@ export default function Barges() {
 
     exportToPdf(
       "bunkerwatch_all_barges_sts_bunkering.pdf",
-      "BunkerWatch — All Barges STS Bunkering",
+      "BUNKERWATCH — TRACKED BUNKERING OPS",
       ["Competitor", "Barge", "Barge IMO", "Vessel", "Date", "Time", "Location"],
       rows.map((o) => [
         o.competitor_name,
