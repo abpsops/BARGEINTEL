@@ -9,6 +9,47 @@ body {
   font-feature-settings: "tnum" 1;
 }
 
+/* Soft colored blobs sitting behind the app, fixed so they don't scroll —
+   this is what the glass panels blur/reveal. Low opacity, decorative only. */
+.bg-blobs {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bg-blobs::before,
+.bg-blobs::after {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.35;
+}
+.bg-blobs::before {
+  width: 520px;
+  height: 520px;
+  top: -120px;
+  left: -80px;
+  background: radial-gradient(circle, #818CF8 0%, #6366F1 60%, transparent 100%);
+}
+.bg-blobs::after {
+  width: 480px;
+  height: 480px;
+  bottom: -140px;
+  right: -100px;
+  background: radial-gradient(circle, #5EEAD4 0%, #0D9488 55%, transparent 100%);
+}
+
+/* Frosted-glass panel: translucent white, blurred backdrop, soft border/shadow. */
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 24px rgba(24, 24, 27, 0.06);
+}
+
 ::selection { background: #6366F133; }
 
 .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }

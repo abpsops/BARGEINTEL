@@ -4,6 +4,7 @@ import { Download } from "lucide-react"
 import { getDataProvider } from "@/services/data"
 import PageHeader from "@/components/ui/PageHeader"
 import KpiCard from "@/components/ui/KpiCard"
+import { Radar, Ship, Sailboat, Building2 } from "lucide-react"
 import DateRangeFilter from "@/components/filters/DateRangeFilter"
 import MultiSelectFilter from "@/components/filters/MultiSelectFilter"
 import OperationBadge from "@/components/ui/OperationBadge"
@@ -117,7 +118,7 @@ export default function STSAnalysis() {
       <PageHeader title="Competitor Analysis" subtitle="Which vessels did competitor barges supply, and when?" />
 
       <div className="px-6">
-        <div className="rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-4 flex flex-wrap items-center gap-3">
+        <div className="rounded-xl glass p-4 flex flex-wrap items-center gap-3">
           <DateRangeFilter from={dateFrom} to={dateTo} onChange={(f, t) => { setDateFrom(f); setDateTo(t) }} />
           <MultiSelectFilter
             label="Competitor"
@@ -152,7 +153,7 @@ export default function STSAnalysis() {
           />
           <button
             onClick={runAnalysis}
-            className="ml-auto rounded-md bg-brand-500 text-white px-5 py-2 text-xs font-semibold tracking-wide hover:bg-signal-bunker/90 transition-colors focus-ring"
+            className="ml-auto rounded-md bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-sm hover:shadow-md transition-shadow px-5 py-2 text-xs font-semibold tracking-wide hover:bg-signal-bunker/90 transition-colors focus-ring"
           >
             RUN ANALYSIS
           </button>
@@ -164,7 +165,7 @@ export default function STSAnalysis() {
         </p>
 
         {!hasRun && (
-          <div className="mt-4 rounded-xl border border-ink-700 bg-ink-900 shadow-sm px-4 py-10 text-center">
+          <div className="mt-4 rounded-xl glass px-4 py-10 text-center">
             <p className="text-sm text-paper-300">Set a date range above and press Run Analysis.</p>
             <p className="mt-1 text-xs text-paper-500">
               With no Competitor or Barge selected, every tracked barge is included.
@@ -175,10 +176,10 @@ export default function STSAnalysis() {
         {hasRun && (
         <>
         <div className="mt-4 grid grid-cols-4 gap-3">
-          <KpiCard label="STS Operations" value={results.length} />
-          <KpiCard label="Unique Receiving Vessels" value={uniqueVesselCount} />
-          <KpiCard label="Active Barges" value={activeBargeCount} />
-          <KpiCard label="Active Competitors" value={activeCompetitorCount} />
+          <KpiCard label="STS Operations" value={results.length} icon={Radar} tone="brand" />
+          <KpiCard label="Unique Receiving Vessels" value={uniqueVesselCount} icon={Ship} tone="ok" />
+          <KpiCard label="Active Barges" value={activeBargeCount} icon={Sailboat} tone="bunker" />
+          <KpiCard label="Active Competitors" value={activeCompetitorCount} icon={Building2} tone="supply" />
         </div>
 
         <div className="mt-5 flex items-center justify-between">
@@ -204,7 +205,7 @@ export default function STSAnalysis() {
           </button>
         </div>
 
-        <div className="mt-3 mb-10 rounded-xl border border-ink-700 bg-ink-900 shadow-sm overflow-hidden">
+        <div className="mt-3 mb-10 rounded-xl glass overflow-hidden">
           {mode === "all" ? (
             <table className="w-full text-sm">
               <thead>

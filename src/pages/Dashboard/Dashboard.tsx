@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { getDataProvider } from "@/services/data"
 import PageHeader from "@/components/ui/PageHeader"
 import KpiCard from "@/components/ui/KpiCard"
+import { Building2, Sailboat, Radar, Ship, Clock, CalendarDays, CalendarRange } from "lucide-react"
 import { formatDateDisplay, resolvePreset } from "@/lib/dates"
 import { Link } from "react-router-dom"
 
@@ -49,20 +50,20 @@ export default function Dashboard() {
       />
 
       <div className="px-6 grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard label="Tracked Competitors" value={competitors.length} />
-        <KpiCard label="Tracked Barges" value={barges.length} />
-        <KpiCard label="Observed STS Operations" value={operations.length} />
-        <KpiCard label="Unique Vessels" value={uniqueVessels} />
+        <KpiCard label="Tracked Competitors" value={competitors.length} icon={Building2} tone="brand" />
+        <KpiCard label="Tracked Barges" value={barges.length} icon={Sailboat} tone="bunker" />
+        <KpiCard label="Observed STS Operations" value={operations.length} icon={Radar} tone="supply" />
+        <KpiCard label="Unique Vessels" value={uniqueVessels} icon={Ship} tone="ok" />
       </div>
 
       <div className="px-6 mt-3 grid grid-cols-3 gap-3">
-        <KpiCard label="Last 24H" value={countInRange(last24h.from, last24h.to)} />
-        <KpiCard label="Last 7 Days" value={countInRange(last7.from, last7.to)} />
-        <KpiCard label="This Month" value={countInRange(thisMonth.from, thisMonth.to)} />
+        <KpiCard label="Last 24H" value={countInRange(last24h.from, last24h.to)} icon={Clock} tone="brand" />
+        <KpiCard label="Last 7 Days" value={countInRange(last7.from, last7.to)} icon={CalendarDays} tone="bunker" />
+        <KpiCard label="This Month" value={countInRange(thisMonth.from, thisMonth.to)} icon={CalendarRange} tone="supply" />
       </div>
 
       <div className="px-6 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-4">
+        <div className="lg:col-span-2 rounded-xl glass p-4">
           <div className="text-xs font-medium text-paper-500 mb-3">
             STS Activity by Day
           </div>
@@ -80,7 +81,7 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
 
-        <div className="rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-4">
+        <div className="rounded-xl glass p-4">
           <div className="text-xs font-medium text-paper-500 mb-3">
             Activity by Competitor
           </div>

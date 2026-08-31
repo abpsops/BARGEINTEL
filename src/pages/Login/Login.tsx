@@ -19,14 +19,17 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-ink-950 flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
+    <div className="relative min-h-screen flex items-center justify-center px-4">
+      <div className="bg-blobs" />
+      <div className="relative z-10 w-full max-w-sm">
         <div className="flex items-center gap-2 justify-center mb-8">
-          <Anchor className="text-brand-600" size={22} strokeWidth={2} />
-          <span className="font-display text-xl tracking-tight text-paper-100">BunkerWatch</span>
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-signal-bunker shadow-sm">
+            <Anchor className="text-white" size={18} strokeWidth={2.25} />
+          </div>
+          <span className="font-display text-xl font-semibold tracking-tight text-paper-100">BunkerWatch</span>
         </div>
 
-        <form onSubmit={signIn} className="rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-6 space-y-4">
+        <form onSubmit={signIn} className="rounded-xl glass p-6 space-y-4">
           <div>
             <label className="block text-xs font-medium text-paper-500 mb-1">
               Email
@@ -36,7 +39,7 @@ export default function Login() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-ink-800 border border-ink-600 rounded-md px-3 py-2 text-sm text-paper-100 focus-ring"
+              className="w-full bg-white/60 border border-ink-600 rounded-md px-3 py-2 text-sm text-paper-100 focus-ring"
               autoFocus
             />
           </div>
@@ -49,7 +52,7 @@ export default function Login() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-ink-800 border border-ink-600 rounded-md px-3 py-2 text-sm text-paper-100 focus-ring"
+              className="w-full bg-white/60 border border-ink-600 rounded-md px-3 py-2 text-sm text-paper-100 focus-ring"
             />
           </div>
 
@@ -58,7 +61,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-brand-500 text-white py-2 text-sm font-medium disabled:opacity-50"
+            className="w-full rounded-md bg-gradient-to-r from-brand-500 to-brand-600 text-white py-2 text-sm font-medium disabled:opacity-50 shadow-sm hover:shadow-md transition-shadow"
           >
             {loading ? "Signing in…" : "Sign in"}
           </button>

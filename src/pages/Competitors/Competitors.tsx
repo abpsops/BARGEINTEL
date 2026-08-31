@@ -62,7 +62,7 @@ export default function Competitors() {
 
       <div className="px-6">
         {showForm && (
-          <div className="mb-4 rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-4 flex flex-wrap items-end gap-3">
+          <div className="mb-4 rounded-xl glass p-4 flex flex-wrap items-end gap-3">
             <Field label="Name">
               <input value={name} onChange={(e) => setName(e.target.value)} className="input" placeholder="Al Marwan Bunkering" />
             </Field>
@@ -72,14 +72,14 @@ export default function Competitors() {
             <Field label="Description">
               <input value={description} onChange={(e) => setDescription(e.target.value)} className="input w-64" placeholder="Optional" />
             </Field>
-            <button onClick={submit} className="rounded-md bg-brand-500 text-white px-3 py-1.5 text-xs font-medium">
+            <button onClick={submit} className="rounded-md bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-sm hover:shadow-md transition-shadow px-3 py-1.5 text-xs font-medium">
               Save
             </button>
           </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 rounded-xl border border-ink-700 bg-ink-900 shadow-sm overflow-hidden">
+          <div className="lg:col-span-2 rounded-xl glass overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-ink-700 text-left text-xs font-medium text-paper-500">
@@ -136,7 +136,7 @@ export default function Competitors() {
             </table>
           </div>
 
-          <div className="rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-4">
+          <div className="rounded-xl glass p-4">
             {!selected && <div className="text-sm text-paper-500">Select a competitor to view its profile.</div>}
             {selected && (
               <div>

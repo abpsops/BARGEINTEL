@@ -138,7 +138,7 @@ export default function Barges() {
 
       <div className="px-6">
         {showBulk && (
-          <div className="mb-4 rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-4 space-y-3">
+          <div className="mb-4 rounded-xl glass p-4 space-y-3">
             <div className="flex gap-3 items-end flex-wrap">
               <div>
                 <label className="block text-xs font-medium text-paper-500 mb-1">
@@ -196,14 +196,14 @@ export default function Barges() {
             <button
               onClick={submitBulk}
               disabled={!competitorId || validImos.length === 0}
-              className="rounded-md bg-brand-500 text-white px-3 py-1.5 text-xs font-medium disabled:opacity-40"
+              className="rounded-md bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-sm hover:shadow-md transition-shadow px-3 py-1.5 text-xs font-medium disabled:opacity-40"
             >
               Add {validImos.length || ""} Barges
             </button>
           </div>
         )}
 
-        <div className="rounded-xl border border-ink-700 bg-ink-900 shadow-sm overflow-hidden">
+        <div className="rounded-xl glass overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-ink-700 text-left text-xs font-medium text-paper-500">
@@ -245,7 +245,7 @@ export default function Barges() {
                         <button
                           onClick={() => pendingFile && setAnalysingBarge(b)}
                           disabled={!pendingFile}
-                          className="rounded-md bg-brand-500 text-white px-2.5 py-1 text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="rounded-md bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-sm hover:shadow-md transition-shadow px-2.5 py-1 text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           Analyse
                         </button>

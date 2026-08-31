@@ -82,7 +82,7 @@ export default function Reports() {
 
 function ReportCard({ title, description, onExport }: { title: string; description: string; onExport: () => void }) {
   return (
-    <div className="rounded-xl border border-ink-700 bg-ink-900 shadow-sm p-4">
+    <div className="rounded-xl glass p-4">
       <div className="font-display text-base">{title}</div>
       <p className="mt-1 text-xs text-paper-500">{description}</p>
       <button
