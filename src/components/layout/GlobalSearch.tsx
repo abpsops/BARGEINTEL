@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom"
 import { X, Ship, Sailboat, Building2, Radar } from "lucide-react"
 import { getDataProvider } from "@/services/data"
 import { formatDateDisplay } from "@/lib/dates"
+import { vesselIdentityKey } from "@/lib/anomalies"
 
 export default function GlobalSearch({ onClose }: { onClose: () => void }) {
   const [query, setQuery] = useState("")
@@ -33,7 +34,7 @@ export default function GlobalSearch({ onClose }: { onClose: () => void }) {
     operations
       .filter((op) => op.receiving_vessel_name.toLowerCase().includes(q) || op.receiving_vessel_imo.includes(q))
       .forEach((op) => {
-        const key = op.receiving_vessel_imo || op.receiving_vessel_name
+        const key = vesselIdentityKey(op)
         const existing = vesselMap.get(key)
         if (existing) existing.count++
         else vesselMap.set(key, { name: op.receiving_vessel_name, imo: op.receiving_vessel_imo, count: 1 })

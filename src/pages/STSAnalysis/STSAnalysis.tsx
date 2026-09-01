@@ -12,6 +12,7 @@ import { resolvePreset, formatDateDisplay } from "@/lib/dates"
 import { exportToCsv } from "@/lib/exportCsv"
 import type { OperationType } from "@/types"
 import { OPERATION_LABELS } from "@/lib/normalizeOperation"
+import { vesselIdentityKey } from "@/lib/anomalies"
 
 export default function STSAnalysis() {
   const provider = getDataProvider()
@@ -56,7 +57,7 @@ export default function STSAnalysis() {
       { name: string; imo: string; count: number; first: string; last: string; competitors: Set<string> }
     >()
     results.forEach((op) => {
-      const key = op.receiving_vessel_imo || op.receiving_vessel_name
+      const key = vesselIdentityKey(op)
       const existing = map.get(key)
       if (existing) {
         existing.count++
@@ -77,7 +78,7 @@ export default function STSAnalysis() {
     return [...map.values()].sort((a, b) => b.count - a.count)
   }, [results])
 
-  const uniqueVesselCount = new Set(results.map((o) => o.receiving_vessel_imo || o.receiving_vessel_name)).size
+  const uniqueVesselCount = new Set(results.map(vesselIdentityKey)).size
   const activeBargeCount = new Set(results.map((o) => o.barge_id)).size
   const activeCompetitorCount = new Set(results.map((o) => o.competitor_id)).size
 

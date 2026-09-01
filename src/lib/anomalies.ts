@@ -62,9 +62,28 @@ function opTimestamp(op: Pick<STSOperation, "operation_date" | "start_time">): n
   return isNaN(t) ? null : t
 }
 
-/** The key used everywhere in the app to identify "the same vessel" — IMO when known, name otherwise. */
+/**
+ * The key used everywhere in the app to identify "the same vessel" — IMO
+ * when known, name otherwise. Real uploaded/parsed data never actually
+ * has a vessel IMO (only the barge's own IMO is known; the receiving
+ * vessel's IMO field is always empty from shipTrackParser.ts), so in
+ * practice this almost always falls back to the name.
+ *
+ * Two independently-parsed files can extract the same vessel's name with
+ * a trivial formatting difference (different case, doubled internal
+ * spaces, a stray non-breaking space) even though a human reading both
+ * would call them obviously the same ship — so the name side of the
+ * comparison is normalized (trimmed, whitespace-collapsed, uppercased)
+ * rather than compared as a raw string. This is purely for matching;
+ * displayed vessel names elsewhere in the app are untouched.
+ */
 export function vesselIdentityKey(op: Pick<STSOperation, "receiving_vessel_imo" | "receiving_vessel_name">): string {
-  return op.receiving_vessel_imo || op.receiving_vessel_name
+  if (op.receiving_vessel_imo) return op.receiving_vessel_imo.trim()
+  return op.receiving_vessel_name
+    .replace(/\u00A0/g, " ") // non-breaking space -> regular space
+    .trim()
+    .replace(/\s+/g, " ")
+    .toUpperCase()
 }
 
 /**

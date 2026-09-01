@@ -5,6 +5,7 @@ import { Plus, X } from "lucide-react"
 import { getDataProvider } from "@/services/data"
 import PageHeader from "@/components/ui/PageHeader"
 import { formatDateDisplay } from "@/lib/dates"
+import { vesselIdentityKey } from "@/lib/anomalies"
 
 export default function Competitors() {
   const provider = getDataProvider()
@@ -23,7 +24,7 @@ export default function Competitors() {
 
   const stats = (competitorId: string) => {
     const ops = operations.filter((o) => o.competitor_id === competitorId)
-    const uniqueVessels = new Set(ops.map((o) => o.receiving_vessel_imo || o.receiving_vessel_name)).size
+    const uniqueVessels = new Set(ops.map(vesselIdentityKey)).size
     const activeBarges = barges.filter((b) => b.competitor_id === competitorId && b.active).length
     const latest = ops.length ? ops.reduce((m, o) => (o.operation_date > m ? o.operation_date : m), ops[0].operation_date) : null
     return { operations: ops.length, uniqueVessels, activeBarges, latest }

@@ -5,7 +5,7 @@ import PageHeader from "@/components/ui/PageHeader"
 import KpiCard from "@/components/ui/KpiCard"
 import { Building2, Sailboat, Radar, Ship, Clock, CalendarDays, CalendarRange, AlertTriangle } from "lucide-react"
 import { formatDateDisplay, resolvePreset } from "@/lib/dates"
-import { findOperationAnomalies } from "@/lib/anomalies"
+import { findOperationAnomalies, vesselIdentityKey } from "@/lib/anomalies"
 import { Link } from "react-router-dom"
 
 export default function Dashboard() {
@@ -24,7 +24,7 @@ export default function Dashboard() {
   const countInRange = (from: string, to: string) =>
     operations.filter((o) => o.operation_date >= from && o.operation_date <= to).length
 
-  const uniqueVessels = new Set(operations.map((o) => o.receiving_vessel_imo || o.receiving_vessel_name)).size
+  const uniqueVessels = new Set(operations.map(vesselIdentityKey)).size
   const anomalyCount = findOperationAnomalies(operations).size
   const latestActivity = operations.length
     ? operations.reduce((max, o) => (o.operation_date > max ? o.operation_date : max), operations[0].operation_date)

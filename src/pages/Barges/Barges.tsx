@@ -9,7 +9,7 @@ import { formatDateDisplay } from "@/lib/dates"
 import BargeSTSUploadModal from "@/components/BargeSTSUploadModal"
 import { exportToXlsx } from "@/lib/exportXlsx"
 import { exportToPdf, buildPdfSummary, buildDateRangeLabel, buildPdfCompetitorLocationBreakdown } from "@/lib/exportPdf"
-import { findOperationAnomalies } from "@/lib/anomalies"
+import { findOperationAnomalies, vesselIdentityKey } from "@/lib/anomalies"
 import type { Barge } from "@/types"
 
 export default function Barges() {
@@ -71,14 +71,13 @@ export default function Barges() {
 
   const downloadPdf = () => {
     const rows = allBunkeringRows()
-    const vesselKey = (o: (typeof rows)[number]) => o.receiving_vessel_imo || o.receiving_vessel_name
-    const byCompetitor = buildPdfSummary(rows, (o) => o.competitor_name, vesselKey)
-    const byLocation = buildPdfSummary(rows, (o) => o.location || "Unknown", vesselKey)
+    const byCompetitor = buildPdfSummary(rows, (o) => o.competitor_name, vesselIdentityKey)
+    const byLocation = buildPdfSummary(rows, (o) => o.location || "Unknown", vesselIdentityKey)
     const byCompetitorLocation = buildPdfCompetitorLocationBreakdown(
       rows,
       (o) => o.competitor_name,
       (o) => o.location || "Unknown",
-      vesselKey
+      vesselIdentityKey
     )
     const dateRangeLabel = buildDateRangeLabel(
       rows.map((o) => o.operation_date),
@@ -163,7 +162,7 @@ export default function Barges() {
 
   const bargeStats = (bargeId: string) => {
     const ops = operations.filter((o) => o.barge_id === bargeId)
-    const uniqueVessels = new Set(ops.map((o) => o.receiving_vessel_imo || o.receiving_vessel_name)).size
+    const uniqueVessels = new Set(ops.map(vesselIdentityKey)).size
     const latest = ops.length ? ops.reduce((m, o) => (o.operation_date > m ? o.operation_date : m), ops[0].operation_date) : null
     const anomalies = ops.filter((o) => anomalyOpIds.has(o.id)).length
     return { ops: ops.length, uniqueVessels, latest, anomalies }
