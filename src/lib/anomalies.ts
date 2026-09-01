@@ -1,41 +1,42 @@
 import type { STSOperation } from "@/types"
 
 /**
- * Flags operations that started less than `minGapHours` (default 5) after
- * the SAME barge's previous operation *with a different vessel*. A single
- * barge physically cannot finish supplying one ship, transit and start
- * supplying a different one within a couple of hours, so that pattern is
- * flagged as a likely AIS/data anomaly.
+ * Generic gap-based anomaly detector: groups `items` by `primaryGroupKeyFn`
+ * (e.g. "same barge" or "same vessel"), sorts each group chronologically,
+ * and flags any pair of consecutive items in a group that are less than
+ * `minGapHours` apart AND differ on `secondaryKeyFn` (e.g. a different
+ * vessel, or a different barge).
  *
- * A short gap between two operations for the SAME vessel is NOT flagged —
- * that's normal for a bunkering split into more than one session (e.g. a
- * pause and resume, or a top-up shortly after), not a spoofing signal.
+ * This is the shared primitive behind findOperationAnomalies() below,
+ * which calls it twice with the two key functions swapped to catch both
+ * "same barge, different vessel, too fast" and "same vessel, different
+ * barge, too fast" — the only exemption is the SAME entity on both keys
+ * (e.g. same barge AND same vessel), which is normal multi-grade
+ * bunkering, not a spoofing signal.
  *
- * `items` does not need to be pre-sorted; this groups by barge internally
- * and walks each barge's own operations in chronological order. Returns
- * the indices (into the original `items` array) of every operation that
- * is either the trigger of a short cross-vessel gap or the operation
- * immediately before it, since both ends of a too-close pair are equally
- * suspicious.
+ * `items` does not need to be pre-sorted. Returns the indices (into the
+ * original `items` array) of every item that is either the trigger of a
+ * short cross-key gap or the item immediately before it, since both ends
+ * of a too-close pair are equally suspicious.
  */
 export function findShortGapFlags<T>(
   items: T[],
-  bargeKeyFn: (item: T) => string,
+  primaryGroupKeyFn: (item: T) => string,
   timestampFn: (item: T) => number | null,
-  vesselKeyFn: (item: T) => string,
+  secondaryKeyFn: (item: T) => string,
   minGapHours = 5
 ): Set<number> {
   const flagged = new Set<number>()
-  const byBarge = new Map<string, number[]>() // bargeKey -> original indices
+  const byGroup = new Map<string, number[]>() // groupKey -> original indices
   items.forEach((item, i) => {
-    const key = bargeKeyFn(item)
-    if (!byBarge.has(key)) byBarge.set(key, [])
-    byBarge.get(key)!.push(i)
+    const key = primaryGroupKeyFn(item)
+    if (!byGroup.has(key)) byGroup.set(key, [])
+    byGroup.get(key)!.push(i)
   })
 
   const minGapMs = minGapHours * 60 * 60 * 1000
 
-  byBarge.forEach((indices) => {
+  byGroup.forEach((indices) => {
     const withTs = indices
       .map((i) => ({ i, ts: timestampFn(items[i]) }))
       .filter((x): x is { i: number; ts: number } => x.ts !== null)
@@ -43,8 +44,8 @@ export function findShortGapFlags<T>(
 
     for (let k = 1; k < withTs.length; k++) {
       const gap = withTs[k].ts - withTs[k - 1].ts
-      const sameVessel = vesselKeyFn(items[withTs[k - 1].i]) === vesselKeyFn(items[withTs[k].i])
-      if (gap >= 0 && gap < minGapMs && !sameVessel) {
+      const sameSecondary = secondaryKeyFn(items[withTs[k - 1].i]) === secondaryKeyFn(items[withTs[k].i])
+      if (gap >= 0 && gap < minGapMs && !sameSecondary) {
         flagged.add(withTs[k - 1].i)
         flagged.add(withTs[k].i)
       }
@@ -68,20 +69,34 @@ export function vesselIdentityKey(op: Pick<STSOperation, "receiving_vessel_imo" 
 
 /**
  * Convenience wrapper around findShortGapFlags for real STSOperation
- * records — the same 5-hour, different-vessel rule used by the PDF
- * export, but callable directly from any page (Barges table, Dashboard
- * KPI) without re-deriving the barge/timestamp/vessel key functions each
- * time.
+ * records — flags a short gap in EITHER direction:
+ *
+ *  - same barge, different vessel, < minGapHours apart (a barge can't
+ *    finish one ship and start a completely different one that fast), OR
+ *  - same vessel, different barge, < minGapHours apart (a vessel can't be
+ *    bunkered by two different physical barges that close together).
+ *
+ * The only combination that's NOT flagged is the SAME barge servicing the
+ * SAME vessel across a short gap — that's normal multi-grade bunkering
+ * (e.g. VLSFO then MGO back to back), not a spoofing signal.
  */
 export function findOperationAnomalies(
   operations: STSOperation[],
   minGapHours = 5
 ): Set<number> {
-  return findShortGapFlags(
+  const bargeThenVessel = findShortGapFlags(
     operations,
     (o) => o.barge_id,
     opTimestamp,
     vesselIdentityKey,
     minGapHours
   )
+  const vesselThenBarge = findShortGapFlags(
+    operations,
+    vesselIdentityKey,
+    opTimestamp,
+    (o) => o.barge_id,
+    minGapHours
+  )
+  return new Set([...bargeThenVessel, ...vesselThenBarge])
 }

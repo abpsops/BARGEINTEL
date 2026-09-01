@@ -104,7 +104,7 @@ export function exportToPdf(
     doc.setFontSize(8)
     doc.setTextColor(110, 78, 0)
     doc.text(
-      `Highlighted rows: this barge switched to a different vessel less than 5 hours after its previous operation — flagged as a possible AIS/data anomaly ("spoofed").`,
+      `Highlighted rows: less than 5 hours since a related operation on a different barge or vessel — flagged as a possible AIS/data anomaly ("spoofed"). Same barge + same vessel within 5 hours is not flagged (normal multi-grade bunkering).`,
       14,
       tableEndY + 6
     )

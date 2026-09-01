@@ -60,7 +60,7 @@ export default function Dashboard() {
           <KpiCard
             label="Flagged Anomalies"
             value={anomalyCount}
-            sublabel={anomalyCount > 0 ? "Vessel switched <5h — view in Barges" : "None detected"}
+            sublabel={anomalyCount > 0 ? "Different barge/vessel <5h — view in Barges" : "None detected"}
             icon={AlertTriangle}
             tone="warn"
           />

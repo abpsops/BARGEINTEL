@@ -124,6 +124,32 @@ describe("findOperationAnomalies (real STSOperation records)", () => {
     expect(flagged.has(1)).toBe(true)
   })
 
+  it("flags the SAME vessel bunkered by two DIFFERENT barges less than 5 hours apart (screenshot case: Amber then Coya both bunker OCTA DIVINE an hour apart)", () => {
+    const ops: STSOperation[] = [
+      { ...baseOp, barge_id: "barge_amber", barge_name: "Amber", barge_imo: "9604031", receiving_vessel_imo: "9999999", receiving_vessel_name: "OCTA DIVINE", operation_date: "2026-08-30", start_time: "12:19" },
+      { ...baseOp, barge_id: "barge_coya", barge_name: "Coya", barge_imo: "9524786", receiving_vessel_imo: "9999999", receiving_vessel_name: "OCTA DIVINE", operation_date: "2026-08-30", start_time: "13:24" },
+    ]
+    const flagged = findOperationAnomalies(ops)
+    expect(flagged.has(0)).toBe(true)
+    expect(flagged.has(1)).toBe(true)
+  })
+
+  it("does NOT flag the same vessel bunkered by two different barges 5+ hours apart", () => {
+    const ops: STSOperation[] = [
+      { ...baseOp, barge_id: "barge_amber", barge_name: "Amber", receiving_vessel_imo: "9999999", receiving_vessel_name: "OCTA DIVINE", operation_date: "2026-08-30", start_time: "06:00" },
+      { ...baseOp, barge_id: "barge_coya", barge_name: "Coya", receiving_vessel_imo: "9999999", receiving_vessel_name: "OCTA DIVINE", operation_date: "2026-08-30", start_time: "13:24" },
+    ]
+    expect(findOperationAnomalies(ops).size).toBe(0)
+  })
+
+  it("does not flag two unrelated operations (different barge AND different vessel) close together", () => {
+    const ops: STSOperation[] = [
+      { ...baseOp, barge_id: "barge_amber", barge_name: "Amber", receiving_vessel_imo: "1111111", receiving_vessel_name: "SAL", operation_date: "2026-08-30", start_time: "00:15" },
+      { ...baseOp, barge_id: "barge_coya", barge_name: "Coya", receiving_vessel_imo: "2222222", receiving_vessel_name: "ZUMA", operation_date: "2026-08-30", start_time: "01:00" },
+    ]
+    expect(findOperationAnomalies(ops).size).toBe(0)
+  })
+
   it("does not flag the same vessel appearing twice close together", () => {
     const ops: STSOperation[] = [
       { ...baseOp, receiving_vessel_imo: "1111111", receiving_vessel_name: "SAL", operation_date: "2026-08-30", start_time: "00:15" },

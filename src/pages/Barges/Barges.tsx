@@ -90,12 +90,13 @@ export default function Barges() {
     const groupBreakAfterRows = rows
       .map((o, i) => (i < rows.length - 1 && o.barge_id !== rows[i + 1].barge_id ? i : -1))
       .filter((i) => i >= 0)
-    // Flag when a barge switches to a DIFFERENT vessel less than 5 hours
-    // after its previous operation — not physically plausible for a real
-    // bunkering, so likely spoofed/bad data. A short gap between two
-    // operations for the SAME vessel is normal (a split/multi-session
-    // bunkering) and is not flagged. Same rule used live on this page's
-    // table (see the anomaly count per barge below).
+    // Flag operations less than 5 hours apart on either a shared barge
+    // (different vessel) or a shared vessel (different barge) — neither
+    // is physically plausible that fast, so likely spoofed/bad data. The
+    // only exemption is the SAME barge servicing the SAME vessel within
+    // 5 hours, which is normal multi-grade bunkering (e.g. VLSFO then
+    // MGO back to back). Same rule used live on this page's table (see
+    // the anomaly count per barge below).
     const flaggedRows = Array.from(findOperationAnomalies(rows))
 
     exportToPdf(
@@ -364,7 +365,7 @@ export default function Barges() {
                         {s.ops}
                         {s.anomalies > 0 && (
                           <span
-                            title={`${s.anomalies} operation${s.anomalies === 1 ? "" : "s"} flagged: this barge switched vessel less than 5 hours after a previous operation`}
+                            title={`${s.anomalies} operation${s.anomalies === 1 ? "" : "s"} flagged: less than 5 hours since a related operation on a different barge or vessel`}
                             className="flex items-center gap-0.5 rounded-full bg-signal-crit/10 text-signal-crit px-1.5 py-0.5 text-[10px] font-sans font-medium cursor-help"
                           >
                             <AlertTriangle size={10} /> {s.anomalies}
