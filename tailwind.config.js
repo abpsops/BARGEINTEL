@@ -5,16 +5,27 @@ export default {
     extend: {
       colors: {
         ink: {
-          950: "#FFFFFF",
-          900: "#FAFAFA",
-          800: "#F4F4F5",
-          700: "#E4E4E7",
-          600: "#D4D4D8",
-          500: "#A1A1AA",
+          950: "#F6F4EF",
+          900: "#FAFAF8",
+          800: "#EFEDE7",
+          700: "#DDDAD1",
+          600: "#C7C3B8",
+          500: "#8D8878",
+        },
+        // Deep marine-navy chrome — sidebar, header, and other fixed
+        // structural surfaces. Distinct from `ink` (the warm paper tone
+        // used for content surfaces), so light content cards keep good
+        // contrast against a dark instrument-panel frame.
+        navy: {
+          900: "#0E2233",
+          800: "#15304A",
+          700: "#1D3F5F",
+          600: "#2C5478",
+          500: "#3D6C93",
         },
         chart: {
-          line: "#E4E4E7",
-          text: "#71717A",
+          line: "#DDDAD1",
+          text: "#8D8878",
         },
         signal: {
           bunker: "#0D9488",   // teal-600 — STS Bunkering
@@ -24,17 +35,21 @@ export default {
           ok: "#16A34A",
         },
         paper: {
-          100: "#18181B",
-          300: "#3F3F46",
-          500: "#71717A",
+          100: "#161B22",
+          300: "#3D4550",
+          500: "#6B7280",
         },
+        // Marine flag-blue — the operator's primary action colour. Chosen
+        // to sit tonally between navy and the bunker teal rather than the
+        // generic Tailwind indigo, so it reads as this product's own
+        // identity, not a template default.
         brand: {
-          500: "#6366F1",
-          600: "#4F46E5",
+          500: "#1B4965",
+          600: "#123449",
         },
       },
       fontFamily: {
-        display: ["Inter", "system-ui", "sans-serif"],
+        display: ["Space Grotesk", "system-ui", "sans-serif"],
         sans: ["Inter", "system-ui", "sans-serif"],
         mono: ["IBM Plex Mono", "ui-monospace", "monospace"],
       },

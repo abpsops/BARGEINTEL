@@ -2,12 +2,12 @@ import type { LucideIcon } from "lucide-react"
 
 export type KpiTone = "brand" | "bunker" | "supply" | "ok" | "warn"
 
-const TONE_GRADIENTS: Record<KpiTone, string> = {
-  brand: "from-brand-500 to-indigo-400",
-  bunker: "from-signal-bunker to-teal-400",
-  supply: "from-signal-supply to-amber-400",
-  ok: "from-signal-ok to-emerald-400",
-  warn: "from-signal-warn to-orange-400",
+const TONE_BG: Record<KpiTone, string> = {
+  brand: "bg-brand-600",
+  bunker: "bg-signal-bunker",
+  supply: "bg-signal-supply",
+  ok: "bg-signal-ok",
+  warn: "bg-signal-warn",
 }
 
 export default function KpiCard({
@@ -28,7 +28,7 @@ export default function KpiCard({
       <div className="flex items-center justify-between">
         <div className="text-xs font-medium text-paper-500">{label}</div>
         {Icon && (
-          <div className={`flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br ${TONE_GRADIENTS[tone]} shadow-sm`}>
+          <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${TONE_BG[tone]}`}>
             <Icon size={13} className="text-white" strokeWidth={2.25} />
           </div>
         )}

@@ -9,57 +9,39 @@ body {
   font-feature-settings: "tnum" 1;
 }
 
-/* Soft colored blobs sitting behind the app, fixed so they don't scroll —
-   this is what the glass panels blur/reveal. Low opacity, decorative only. */
+/* A quiet vignette behind the app shell — not a decorative gradient wash,
+   just enough depth to separate the paper-toned canvas from pure flat
+   colour. Fixed so it doesn't scroll with content. */
 .bg-blobs {
   position: fixed;
   inset: 0;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-}
-.bg-blobs::before,
-.bg-blobs::after {
-  content: "";
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(90px);
-  opacity: 0.35;
-}
-.bg-blobs::before {
-  width: 520px;
-  height: 520px;
-  top: -120px;
-  left: -80px;
-  background: radial-gradient(circle, #818CF8 0%, #6366F1 60%, transparent 100%);
-}
-.bg-blobs::after {
-  width: 480px;
-  height: 480px;
-  bottom: -140px;
-  right: -100px;
-  background: radial-gradient(circle, #5EEAD4 0%, #0D9488 55%, transparent 100%);
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(14, 34, 51, 0.035), transparent 60%),
+    radial-gradient(900px 500px at 100% 100%, rgba(13, 148, 136, 0.03), transparent 60%);
 }
 
-/* Frosted-glass panel: translucent white, blurred backdrop, soft border/shadow. */
+/* Content surface: warm paper card with a crisp hairline border. Replaces
+   the earlier frosted-glass/blur treatment — flatter, higher-contrast,
+   and reads as an instrument panel rather than a translucent overlay. */
 .glass {
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 4px 24px rgba(24, 24, 27, 0.06);
+  background: #FFFFFF;
+  border: 1px solid #E4E1D8;
+  box-shadow: 0 1px 2px rgba(14, 34, 51, 0.04);
 }
 
-::selection { background: #6366F133; }
+::selection { background: #1B496533; }
 
 .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
-.scrollbar-thin::-webkit-scrollbar-thumb { background: #D4D4D8; border-radius: 4px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #C7C3B8; border-radius: 4px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
 
 table { font-variant-numeric: tabular-nums; }
 
 .focus-ring:focus-visible {
-  outline: 2px solid #6366F1;
+  outline: 2px solid #1B4965;
   outline-offset: 2px;
 }
 

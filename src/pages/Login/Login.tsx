@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { Anchor } from "lucide-react"
 import { supabase } from "@/services/supabase/client"
+import Logo from "@/components/ui/Logo"
 
 export default function Login() {
   const [email, setEmail] = useState("")
@@ -19,14 +19,11 @@ export default function Login() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-4">
-      <div className="bg-blobs" />
+    <div className="relative min-h-screen flex items-center justify-center px-4 bg-navy-900">
       <div className="relative z-10 w-full max-w-sm">
-        <div className="flex items-center gap-2 justify-center mb-8">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-signal-bunker shadow-sm">
-            <Anchor className="text-white" size={18} strokeWidth={2.25} />
-          </div>
-          <span className="font-display text-xl font-semibold tracking-tight text-paper-100">BunkerWatch</span>
+        <div className="flex items-center gap-2.5 justify-center mb-8">
+          <Logo className="h-8 w-8 text-white" />
+          <span className="font-display text-xl font-semibold tracking-tight text-white">BunkerWatch</span>
         </div>
 
         <form onSubmit={signIn} className="rounded-xl glass p-6 space-y-4">
@@ -39,7 +36,7 @@ export default function Login() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-white/60 border border-ink-600 rounded-md px-3 py-2 text-sm text-paper-100 focus-ring"
+              className="w-full bg-ink-950 border border-ink-700 rounded-md px-3 py-2 text-sm text-paper-100 focus-ring"
               autoFocus
             />
           </div>
@@ -52,7 +49,7 @@ export default function Login() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-white/60 border border-ink-600 rounded-md px-3 py-2 text-sm text-paper-100 focus-ring"
+              className="w-full bg-ink-950 border border-ink-700 rounded-md px-3 py-2 text-sm text-paper-100 focus-ring"
             />
           </div>
 
@@ -67,7 +64,7 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="mt-4 text-center text-xs text-paper-500">
+        <p className="mt-4 text-center text-xs text-navy-500">
           Access is restricted to users added under Supabase Authentication.
         </p>
       </div>
