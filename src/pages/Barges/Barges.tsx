@@ -7,7 +7,7 @@ import { isValidIMO } from "@/lib/imo"
 import { formatDateDisplay } from "@/lib/dates"
 import BargeSTSUploadModal from "@/components/BargeSTSUploadModal"
 import { exportToXlsx } from "@/lib/exportXlsx"
-import { exportToPdf, buildPdfSummary, buildDateRangeLabel } from "@/lib/exportPdf"
+import { exportToPdf, buildPdfSummary, buildDateRangeLabel, buildPdfCompetitorLocationBreakdown, findShortGapFlags } from "@/lib/exportPdf"
 import type { Barge } from "@/types"
 
 export default function Barges() {
@@ -30,11 +30,23 @@ export default function Barges() {
 
   const competitorName = (id: string) => competitors.find((c) => c.id === id)?.name ?? "—"
 
+  // Grouped by COMPETITOR first, then by barge within that competitor, so
+  // every barge belonging to e.g. OMTI sits in one contiguous block — never
+  // split apart by another competitor's barge landing alphabetically
+  // between two of OMTI's barge names. Chronological within each barge
+  // (date, then time) so consecutive-operation gap checks read correctly.
   const allBunkeringRows = () =>
     operations
       .filter((o) => o.operation_type === "STS_BUNKERING")
       .slice()
-      .sort((a, b) => (a.barge_name < b.barge_name ? -1 : a.barge_name > b.barge_name ? 1 : 0))
+      .sort((a, b) => {
+        if (a.competitor_name !== b.competitor_name) return a.competitor_name < b.competitor_name ? -1 : 1
+        if (a.barge_name !== b.barge_name) return a.barge_name < b.barge_name ? -1 : 1
+        if (a.barge_id !== b.barge_id) return a.barge_id < b.barge_id ? -1 : 1
+        const aKey = `${a.operation_date} ${a.start_time ?? ""}`
+        const bKey = `${b.operation_date} ${b.start_time ?? ""}`
+        return aKey < bKey ? -1 : aKey > bKey ? 1 : 0
+      })
 
   const downloadExcel = () => {
     exportToXlsx(
@@ -57,16 +69,33 @@ export default function Barges() {
     const vesselKey = (o: (typeof rows)[number]) => o.receiving_vessel_imo || o.receiving_vessel_name
     const byCompetitor = buildPdfSummary(rows, (o) => o.competitor_name, vesselKey)
     const byLocation = buildPdfSummary(rows, (o) => o.location || "Unknown", vesselKey)
+    const byCompetitorLocation = buildPdfCompetitorLocationBreakdown(
+      rows,
+      (o) => o.competitor_name,
+      (o) => o.location || "Unknown",
+      vesselKey
+    )
     const dateRangeLabel = buildDateRangeLabel(
       rows.map((o) => o.operation_date),
       formatDateDisplay
     )
     // A separator line is drawn under the last row of each barge's block of
-    // entries (rows are already sorted by barge_name), so one barge's
-    // operations are visually set off from the next.
+    // entries (rows are already sorted by competitor, then barge), so one
+    // barge's operations are visually set off from the next.
     const groupBreakAfterRows = rows
       .map((o, i) => (i < rows.length - 1 && o.barge_id !== rows[i + 1].barge_id ? i : -1))
       .filter((i) => i >= 0)
+    // Flag any operation that started less than 5 hours after the SAME
+    // barge's previous operation, anywhere in the tracked period — not
+    // physically plausible for a real bunkering, so likely spoofed/bad data.
+    const flaggedRows = Array.from(
+      findShortGapFlags(
+        rows,
+        (o) => o.barge_id,
+        (o) => (o.start_time ? new Date(`${o.operation_date}T${o.start_time}:00`).getTime() : null),
+        5
+      )
+    )
 
     exportToPdf(
       "bunkerwatch_all_barges_sts_bunkering.pdf",
@@ -84,9 +113,11 @@ export default function Barges() {
       {
         dateRangeLabel,
         groupBreakAfterRows,
+        flaggedRows,
         summary: {
           byCompetitor: byCompetitor.rows,
           byLocation: byLocation.rows,
+          byCompetitorLocation,
           totalOperations: byCompetitor.totalOperations,
           totalVessels: byCompetitor.totalVessels,
         },
