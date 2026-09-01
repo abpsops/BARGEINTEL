@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useParams, useNavigate } from "react-router-dom"
 import { Plus, X } from "lucide-react"
 import { getDataProvider } from "@/services/data"
 import PageHeader from "@/components/ui/PageHeader"
@@ -8,8 +9,10 @@ import { formatDateDisplay } from "@/lib/dates"
 export default function Competitors() {
   const provider = getDataProvider()
   const qc = useQueryClient()
+  const { id: routeId } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const [showForm, setShowForm] = useState(false)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(routeId ?? null)
   const [name, setName] = useState("")
   const [code, setCode] = useState("")
   const [description, setDescription] = useState("")
@@ -98,7 +101,10 @@ export default function Competitors() {
                   return (
                     <tr
                       key={c.id}
-                      onClick={() => setSelectedId(c.id)}
+                      onClick={() => {
+                        setSelectedId(c.id)
+                        navigate(`/competitors/${c.id}`, { replace: true })
+                      }}
                       className={`border-b border-ink-800 cursor-pointer hover:bg-ink-800/60 ${
                         selectedId === c.id ? "bg-ink-800" : ""
                       }`}

@@ -1,5 +1,6 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useSearchParams } from "react-router-dom"
 import { Plus, X, AlertTriangle, FileSpreadsheet, FileText, CheckCircle2, RotateCcw } from "lucide-react"
 import { getDataProvider } from "@/services/data"
 import PageHeader from "@/components/ui/PageHeader"
@@ -7,12 +8,15 @@ import { isValidIMO } from "@/lib/imo"
 import { formatDateDisplay } from "@/lib/dates"
 import BargeSTSUploadModal from "@/components/BargeSTSUploadModal"
 import { exportToXlsx } from "@/lib/exportXlsx"
-import { exportToPdf, buildPdfSummary, buildDateRangeLabel, buildPdfCompetitorLocationBreakdown, findShortGapFlags } from "@/lib/exportPdf"
+import { exportToPdf, buildPdfSummary, buildDateRangeLabel, buildPdfCompetitorLocationBreakdown } from "@/lib/exportPdf"
+import { findOperationAnomalies } from "@/lib/anomalies"
 import type { Barge } from "@/types"
 
 export default function Barges() {
   const provider = getDataProvider()
   const qc = useQueryClient()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const highlightId = searchParams.get("highlight")
   const [showBulk, setShowBulk] = useState(false)
   const [competitorId, setCompetitorId] = useState("")
   const [bulkText, setBulkText] = useState("")
@@ -23,6 +27,7 @@ export default function Barges() {
   // Which barge's Analyse modal is currently open.
   const [analysingBarge, setAnalysingBarge] = useState<Barge | null>(null)
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
+  const rowRefs = useRef<Record<string, HTMLTableRowElement | null>>({})
 
   const { data: competitors = [] } = useQuery({ queryKey: ["competitors"], queryFn: () => provider.getCompetitors() })
   const { data: barges = [] } = useQuery({ queryKey: ["barges"], queryFn: () => provider.getBarges() })
@@ -89,16 +94,9 @@ export default function Barges() {
     // after its previous operation — not physically plausible for a real
     // bunkering, so likely spoofed/bad data. A short gap between two
     // operations for the SAME vessel is normal (a split/multi-session
-    // bunkering) and is not flagged.
-    const flaggedRows = Array.from(
-      findShortGapFlags(
-        rows,
-        (o) => o.barge_id,
-        (o) => (o.start_time ? new Date(`${o.operation_date}T${o.start_time}:00`).getTime() : null),
-        vesselKey,
-        5
-      )
-    )
+    // bunkering) and is not flagged. Same rule used live on this page's
+    // table (see the anomaly count per barge below).
+    const flaggedRows = Array.from(findOperationAnomalies(rows))
 
     exportToPdf(
       "bunkerwatch_all_barges_sts_bunkering.pdf",
@@ -154,12 +152,40 @@ export default function Barges() {
     qc.invalidateQueries({ queryKey: ["barges"] })
   }
 
+  // Computed once across ALL operations (the anomaly rule looks at a
+  // barge's full chronological history, not just what's visible per row),
+  // then looked up per barge below — same 5-hour/different-vessel rule
+  // used in the PDF export, now surfaced live as you upload/analyse.
+  const anomalyOpIds = new Set(
+    Array.from(findOperationAnomalies(operations)).map((i) => operations[i].id)
+  )
+
   const bargeStats = (bargeId: string) => {
     const ops = operations.filter((o) => o.barge_id === bargeId)
     const uniqueVessels = new Set(ops.map((o) => o.receiving_vessel_imo || o.receiving_vessel_name)).size
     const latest = ops.length ? ops.reduce((m, o) => (o.operation_date > m ? o.operation_date : m), ops[0].operation_date) : null
-    return { ops: ops.length, uniqueVessels, latest }
+    const anomalies = ops.filter((o) => anomalyOpIds.has(o.id)).length
+    return { ops: ops.length, uniqueVessels, latest, anomalies }
   }
+
+  // Arriving here via a global-search click on a barge/event carries
+  // ?highlight=<bargeId> — scroll that row into view and give it a
+  // temporary highlight, then clear the param so a page refresh doesn't
+  // keep re-highlighting it forever.
+  useEffect(() => {
+    if (!highlightId) return
+    const row = rowRefs.current[highlightId]
+    if (row) row.scrollIntoView({ behavior: "smooth", block: "center" })
+    const t = setTimeout(() => {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev)
+        next.delete("highlight")
+        return next
+      }, { replace: true })
+    }, 2500)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [highlightId, barges.length])
 
   const onAttachFile = (bargeId: string, file: File) => {
     setPendingFiles((prev) => ({ ...prev, [bargeId]: file }))
@@ -323,11 +349,29 @@ export default function Barges() {
                 const s = bargeStats(b.id)
                 const pendingFile = pendingFiles[b.id]
                 return (
-                  <tr key={b.id} className="border-b border-ink-800 hover:bg-ink-800/60">
+                  <tr
+                    key={b.id}
+                    ref={(el) => { rowRefs.current[b.id] = el }}
+                    className={`border-b border-ink-800 hover:bg-ink-800/60 transition-colors ${
+                      highlightId === b.id ? "bg-signal-warn/10 ring-1 ring-inset ring-signal-warn/40" : ""
+                    }`}
+                  >
                     <td className="px-4 py-2.5 text-paper-300">{competitorName(b.competitor_id)}</td>
                     <td className="px-4 py-2.5">{b.name}</td>
                     <td className="px-4 py-2.5 font-mono text-paper-500">{b.imo}</td>
-                    <td className="px-4 py-2.5 text-right font-mono">{s.ops}</td>
+                    <td className="px-4 py-2.5 text-right font-mono">
+                      <div className="flex items-center justify-end gap-1.5">
+                        {s.ops}
+                        {s.anomalies > 0 && (
+                          <span
+                            title={`${s.anomalies} operation${s.anomalies === 1 ? "" : "s"} flagged: this barge switched vessel less than 5 hours after a previous operation`}
+                            className="flex items-center gap-0.5 rounded-full bg-signal-crit/10 text-signal-crit px-1.5 py-0.5 text-[10px] font-sans font-medium cursor-help"
+                          >
+                            <AlertTriangle size={10} /> {s.anomalies}
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-4 py-2.5 text-xs text-paper-500">{s.latest ? formatDateDisplay(s.latest) : "N/A"}</td>
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">

@@ -53,6 +53,7 @@ export default function BargeSTSUploadModal({
   const [genericResults, setGenericResults] = useState<SingleBargeRowResult[] | null>(null)
 
   const [saved, setSaved] = useState<number | null>(null)
+  const [skippedDupes, setSkippedDupes] = useState(0)
   const [busy, setBusy] = useState(false)
 
   const onFile = async (f: File) => {
@@ -91,9 +92,10 @@ export default function BargeSTSUploadModal({
 
   const confirmSave = async () => {
     setBusy(true)
-    const { imported } = await provider.importOperations(previewOps)
+    const { imported, skippedDuplicates } = await provider.importOperations(previewOps)
     setBusy(false)
     setSaved(imported)
+    setSkippedDupes(skippedDuplicates)
     onSaved(imported)
   }
 
@@ -222,6 +224,12 @@ export default function BargeSTSUploadModal({
               <CheckCircle2 size={16} className="text-signal-ok shrink-0" />
               <div className="text-sm">
                 {saved} STS Bunkering record{saved === 1 ? "" : "s"} saved for {barge.name}.
+                {skippedDupes > 0 && (
+                  <span className="block mt-1 text-xs text-paper-500">
+                    {skippedDupes} row{skippedDupes === 1 ? "" : "s"} skipped — already imported for this barge
+                    (same vessel, date, time and location).
+                  </span>
+                )}
               </div>
             </div>
           )}

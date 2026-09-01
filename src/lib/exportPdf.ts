@@ -1,5 +1,6 @@
 import { jsPDF } from "jspdf"
 import autoTable from "jspdf-autotable"
+export { findShortGapFlags } from "@/lib/anomalies"
 
 export interface PdfSummaryRow {
   label: string
@@ -261,60 +262,6 @@ export function buildPdfCompetitorLocationBreakdown<T>(
   })
 
   return rows
-}
-
-/**
- * Flags operations that started less than `minGapHours` (default 5) after
- * the SAME barge's previous operation *with a different vessel*. A single
- * barge physically cannot finish supplying one ship, transit and start
- * supplying a different one within a couple of hours, so that pattern is
- * flagged as a likely AIS/data anomaly.
- *
- * A short gap between two operations for the SAME vessel is NOT flagged —
- * that's normal for a bunkering split into more than one session (e.g. a
- * pause and resume, or a top-up shortly after), not a spoofing signal.
- *
- * `items` does not need to be pre-sorted; this groups by barge internally
- * and walks each barge's own operations in chronological order. Returns
- * the indices (into the original `items` array) of every operation that
- * is either the trigger of a short cross-vessel gap or the operation
- * immediately before it, since both ends of a too-close pair are equally
- * suspicious.
- */
-export function findShortGapFlags<T>(
-  items: T[],
-  bargeKeyFn: (item: T) => string,
-  timestampFn: (item: T) => number | null,
-  vesselKeyFn: (item: T) => string,
-  minGapHours = 5
-): Set<number> {
-  const flagged = new Set<number>()
-  const byBarge = new Map<string, number[]>() // bargeKey -> original indices
-  items.forEach((item, i) => {
-    const key = bargeKeyFn(item)
-    if (!byBarge.has(key)) byBarge.set(key, [])
-    byBarge.get(key)!.push(i)
-  })
-
-  const minGapMs = minGapHours * 60 * 60 * 1000
-
-  byBarge.forEach((indices) => {
-    const withTs = indices
-      .map((i) => ({ i, ts: timestampFn(items[i]) }))
-      .filter((x): x is { i: number; ts: number } => x.ts !== null)
-      .sort((a, b) => a.ts - b.ts)
-
-    for (let k = 1; k < withTs.length; k++) {
-      const gap = withTs[k].ts - withTs[k - 1].ts
-      const sameVessel = vesselKeyFn(items[withTs[k - 1].i]) === vesselKeyFn(items[withTs[k].i])
-      if (gap >= 0 && gap < minGapMs && !sameVessel) {
-        flagged.add(withTs[k - 1].i)
-        flagged.add(withTs[k].i)
-      }
-    }
-  })
-
-  return flagged
 }
 
 /** Formats a min/max operation-date pair as "29 Aug 2026 – 31 Aug 2026". */
