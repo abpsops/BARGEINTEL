@@ -103,7 +103,7 @@ export function exportToPdf(
     doc.setFontSize(8)
     doc.setTextColor(110, 78, 0)
     doc.text(
-      `Highlighted rows: less than 5 hours since this barge's previous bunkering operation — flagged as a possible AIS/data anomaly ("spoofed").`,
+      `Highlighted rows: this barge switched to a different vessel less than 5 hours after its previous operation — flagged as a possible AIS/data anomaly ("spoofed").`,
       14,
       tableEndY + 6
     )
@@ -265,21 +265,27 @@ export function buildPdfCompetitorLocationBreakdown<T>(
 
 /**
  * Flags operations that started less than `minGapHours` (default 5) after
- * the SAME barge's previous operation, anywhere in the dataset — not just
- * within one vessel or one location. A single barge physically cannot
- * finish one bunkering, transit and start another within a couple of
- * hours, so a short gap is flagged as a likely AIS/data anomaly.
+ * the SAME barge's previous operation *with a different vessel*. A single
+ * barge physically cannot finish supplying one ship, transit and start
+ * supplying a different one within a couple of hours, so that pattern is
+ * flagged as a likely AIS/data anomaly.
+ *
+ * A short gap between two operations for the SAME vessel is NOT flagged —
+ * that's normal for a bunkering split into more than one session (e.g. a
+ * pause and resume, or a top-up shortly after), not a spoofing signal.
  *
  * `items` does not need to be pre-sorted; this groups by barge internally
  * and walks each barge's own operations in chronological order. Returns
  * the indices (into the original `items` array) of every operation that
- * is either the trigger of a short gap or the operation immediately
- * before it, since both ends of a too-close pair are equally suspicious.
+ * is either the trigger of a short cross-vessel gap or the operation
+ * immediately before it, since both ends of a too-close pair are equally
+ * suspicious.
  */
 export function findShortGapFlags<T>(
   items: T[],
   bargeKeyFn: (item: T) => string,
   timestampFn: (item: T) => number | null,
+  vesselKeyFn: (item: T) => string,
   minGapHours = 5
 ): Set<number> {
   const flagged = new Set<number>()
@@ -300,7 +306,8 @@ export function findShortGapFlags<T>(
 
     for (let k = 1; k < withTs.length; k++) {
       const gap = withTs[k].ts - withTs[k - 1].ts
-      if (gap >= 0 && gap < minGapMs) {
+      const sameVessel = vesselKeyFn(items[withTs[k - 1].i]) === vesselKeyFn(items[withTs[k].i])
+      if (gap >= 0 && gap < minGapMs && !sameVessel) {
         flagged.add(withTs[k - 1].i)
         flagged.add(withTs[k].i)
       }

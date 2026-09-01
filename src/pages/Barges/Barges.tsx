@@ -85,14 +85,17 @@ export default function Barges() {
     const groupBreakAfterRows = rows
       .map((o, i) => (i < rows.length - 1 && o.barge_id !== rows[i + 1].barge_id ? i : -1))
       .filter((i) => i >= 0)
-    // Flag any operation that started less than 5 hours after the SAME
-    // barge's previous operation, anywhere in the tracked period — not
-    // physically plausible for a real bunkering, so likely spoofed/bad data.
+    // Flag when a barge switches to a DIFFERENT vessel less than 5 hours
+    // after its previous operation — not physically plausible for a real
+    // bunkering, so likely spoofed/bad data. A short gap between two
+    // operations for the SAME vessel is normal (a split/multi-session
+    // bunkering) and is not flagged.
     const flaggedRows = Array.from(
       findShortGapFlags(
         rows,
         (o) => o.barge_id,
         (o) => (o.start_time ? new Date(`${o.operation_date}T${o.start_time}:00`).getTime() : null),
+        vesselKey,
         5
       )
     )
