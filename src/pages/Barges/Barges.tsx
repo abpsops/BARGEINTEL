@@ -109,8 +109,9 @@ export default function Barges() {
     exportToPdf(
       "bunkerwatch_all_barges_sts_bunkering.pdf",
       "BUNKERWATCH — TRACKED BUNKERING OPS",
-      ["Competitor", "Barge", "Barge IMO", "Vessel", "Date", "Time", "Location"],
-      rows.map((o) => [
+      ["#", "Competitor", "Barge", "Barge IMO", "Vessel", "Date", "Time", "Location"],
+      rows.map((o, i) => [
+        i + 1,
         o.competitor_name,
         o.barge_name,
         o.barge_imo,
@@ -123,6 +124,7 @@ export default function Barges() {
         dateRangeLabel,
         groupBreakAfterRows,
         flaggedRows,
+        firstColumnIsRowNumber: true,
         anomalyExplanations,
         summary: {
           byCompetitor: byCompetitor.rows,

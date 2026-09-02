@@ -40,6 +40,14 @@ export interface PdfExportOptions {
    */
   flaggedRows?: number[]
   /**
+   * Set when the first column of `rows` is a row number (e.g. "#") —
+   * narrows that column and centers/bolds it instead of stretching it
+   * like a normal text column, and lets the "Rows" reference in
+   * anomalyExplanations line up with something actually printed in the
+   * main table.
+   */
+  firstColumnIsRowNumber?: boolean
+  /**
    * Plain-language explanation for each flagged pair, rendered on its own
    * page right after the main table — which two rows, how close together
    * they were, and why that specific pattern is implausible. Without
@@ -94,6 +102,9 @@ export function exportToPdf(
     body: rows.map((r) => r.map((c) => (c === null || c === undefined ? "" : String(c)))),
     styles: { fontSize: 8 },
     headStyles: { fillColor: [15, 138, 128] },
+    columnStyles: options?.firstColumnIsRowNumber
+      ? { 0: { cellWidth: 9, halign: "center", fontStyle: "bold", textColor: [110, 110, 110] } }
+      : undefined,
     didParseCell: (data) => {
       if (data.section === "body" && flagged.has(data.row.index)) {
         data.cell.styles.fillColor = [255, 236, 140]
