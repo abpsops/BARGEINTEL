@@ -142,8 +142,9 @@ export function exportToPdf(
 
     autoTable(doc, {
       startY: 28,
-      head: [["Rows", "Gap", "Why it's flagged"]],
-      body: options.anomalyExplanations.map((e) => [
+      head: [["#", "Rows", "Gap", "Why it's flagged"]],
+      body: options.anomalyExplanations.map((e, i) => [
+        String(i + 1),
         `${e.rowNumbers[0]} & ${e.rowNumbers[1]}`,
         e.gapLabel,
         e.summary,
@@ -151,8 +152,9 @@ export function exportToPdf(
       styles: { fontSize: 9, cellPadding: 3, valign: "top" },
       headStyles: { fillColor: [15, 138, 128] },
       columnStyles: {
-        0: { cellWidth: 22, halign: "center", fontStyle: "bold" },
-        1: { cellWidth: 22, halign: "center" },
+        0: { cellWidth: 10, halign: "center", fontStyle: "bold" },
+        1: { cellWidth: 22, halign: "center", fontStyle: "bold" },
+        2: { cellWidth: 22, halign: "center" },
       },
       alternateRowStyles: { fillColor: [255, 249, 230] },
     })

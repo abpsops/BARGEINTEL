@@ -152,7 +152,7 @@ export function findOperationAnomalyDetails(
       reasonType: "same_barge_different_vessel",
       gapMinutes,
       gapLabel: formatGap(gapMinutes),
-      summary: `Barge ${opA.barge_name} supplied ${opA.receiving_vessel_name} then ${opB.receiving_vessel_name} only ${formatGap(gapMinutes)} apart — a single barge can't finish one bunkering, move, and start a completely different one that fast.`,
+      summary: `${opA.barge_name} supplied ${opA.receiving_vessel_name} then ${opB.receiving_vessel_name}, ${formatGap(gapMinutes)} apart — too fast for one barge to switch vessels.`,
     })
   })
 
@@ -165,7 +165,7 @@ export function findOperationAnomalyDetails(
       reasonType: "same_vessel_different_barge",
       gapMinutes,
       gapLabel: formatGap(gapMinutes),
-      summary: `${opA.receiving_vessel_name} was bunkered by ${opA.barge_name} then by ${opB.barge_name} only ${formatGap(gapMinutes)} apart — a vessel can't be serviced by two different physical barges that close together.`,
+      summary: `${opA.receiving_vessel_name} bunkered by ${opA.barge_name} then ${opB.barge_name}, ${formatGap(gapMinutes)} apart — too fast for two different barges.`,
     })
   })
 
