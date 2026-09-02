@@ -9,7 +9,7 @@ import { formatDateDisplay } from "@/lib/dates"
 import BargeSTSUploadModal from "@/components/BargeSTSUploadModal"
 import { exportToXlsx } from "@/lib/exportXlsx"
 import { exportToPdf, buildPdfSummary, buildDateRangeLabel, buildPdfCompetitorLocationBreakdown } from "@/lib/exportPdf"
-import { findOperationAnomalies, vesselIdentityKey } from "@/lib/anomalies"
+import { findOperationAnomalies, findOperationAnomalyDetails, vesselIdentityKey } from "@/lib/anomalies"
 import type { Barge } from "@/types"
 
 export default function Barges() {
@@ -97,6 +97,14 @@ export default function Barges() {
     // MGO back to back). Same rule used live on this page's table (see
     // the anomaly count per barge below).
     const flaggedRows = Array.from(findOperationAnomalies(rows))
+    // Plain-language explanation for each flagged pair, shown on its own
+    // page in the PDF right after the main table — row numbers below are
+    // 1-based to match the S.No. column (index + 1).
+    const anomalyExplanations = findOperationAnomalyDetails(rows).map((d) => ({
+      rowNumbers: [d.indices[0] + 1, d.indices[1] + 1] as [number, number],
+      gapLabel: d.gapLabel,
+      summary: d.summary,
+    }))
 
     exportToPdf(
       "bunkerwatch_all_barges_sts_bunkering.pdf",
@@ -115,6 +123,7 @@ export default function Barges() {
         dateRangeLabel,
         groupBreakAfterRows,
         flaggedRows,
+        anomalyExplanations,
         summary: {
           byCompetitor: byCompetitor.rows,
           byLocation: byLocation.rows,

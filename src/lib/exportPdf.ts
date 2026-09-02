@@ -15,6 +15,13 @@ export interface PdfCompetitorLocationRow {
   vessels: number
 }
 
+export interface PdfAnomalyExplanation {
+  /** 1-based row numbers matching the main table's S.No. column, earlier first. */
+  rowNumbers: [number, number]
+  gapLabel: string
+  summary: string
+}
+
 export interface PdfExportOptions {
   /** Shown under the title, e.g. "Tracked period: 29 Aug 2026 – 31 Aug 2026". */
   dateRangeLabel?: string
@@ -32,6 +39,13 @@ export interface PdfExportOptions {
    * it's flagged as a likely AIS/data anomaly ("spoofed").
    */
   flaggedRows?: number[]
+  /**
+   * Plain-language explanation for each flagged pair, rendered on its own
+   * page right after the main table — which two rows, how close together
+   * they were, and why that specific pattern is implausible. Without
+   * this, a highlighted row only says "flagged", not why.
+   */
+  anomalyExplanations?: PdfAnomalyExplanation[]
   /**
    * When provided, a final summary page is appended after the main table:
    * a "Vessels Supplied by Competitor" breakdown and an "Operations by
@@ -104,11 +118,44 @@ export function exportToPdf(
     doc.setFontSize(8)
     doc.setTextColor(110, 78, 0)
     doc.text(
-      `Highlighted rows: less than 5 hours since a related operation on a different barge or vessel — flagged as a possible AIS/data anomaly ("spoofed"). Same barge + same vessel within 5 hours is not flagged (normal multi-grade bunkering).`,
+      `Highlighted rows: less than 5 hours since a related operation on a different barge or vessel — flagged as a possible AIS/data anomaly ("spoofed"). Same barge + same vessel within 5 hours is not flagged (normal multi-grade bunkering). See "Flagged Operations — Why" on the next page for the specific reason behind each highlight.`,
       14,
-      tableEndY + 6
+      tableEndY + 6,
+      { maxWidth: pageWidth - 28 }
     )
     doc.setTextColor(0, 0, 0)
+  }
+
+  if (options?.anomalyExplanations && options.anomalyExplanations.length) {
+    doc.addPage()
+    doc.setFontSize(14)
+    doc.text("Flagged Operations — Why", 14, 15)
+    doc.setFontSize(9)
+    doc.setTextColor(90, 90, 90)
+    doc.text(
+      `Each row below explains one highlighted pair from the "${title}" table — the two operations involved, how close together they were, and which implausible pattern applies.`,
+      14,
+      21,
+      { maxWidth: pageWidth - 28 }
+    )
+    doc.setTextColor(0, 0, 0)
+
+    autoTable(doc, {
+      startY: 28,
+      head: [["Rows", "Gap", "Why it's flagged"]],
+      body: options.anomalyExplanations.map((e) => [
+        `${e.rowNumbers[0]} & ${e.rowNumbers[1]}`,
+        e.gapLabel,
+        e.summary,
+      ]),
+      styles: { fontSize: 9, cellPadding: 3, valign: "top" },
+      headStyles: { fillColor: [15, 138, 128] },
+      columnStyles: {
+        0: { cellWidth: 22, halign: "center", fontStyle: "bold" },
+        1: { cellWidth: 22, halign: "center" },
+      },
+      alternateRowStyles: { fillColor: [255, 249, 230] },
+    })
   }
 
   if (options?.summary) {
