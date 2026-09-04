@@ -248,26 +248,26 @@ export default function Barges() {
           <div className="flex items-center gap-2">
             <button
               onClick={downloadExcel}
-              className="flex items-center gap-1.5 rounded-md border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
+              className="flex items-center gap-1.5 rounded-md bg-vivid-green px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:brightness-110 transition-all focus-ring"
             >
               <FileSpreadsheet size={13} /> Download All (Excel)
             </button>
             <button
               onClick={downloadPdf}
-              className="flex items-center gap-1.5 rounded-md border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
+              className="flex items-center gap-1.5 rounded-md bg-vivid-blue px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:brightness-110 transition-all focus-ring"
             >
               <FileText size={13} /> Download All (PDF)
             </button>
             <button
               onClick={clearAllBarges}
               title="Reset every barge's analysed data back to 0"
-              className="flex items-center gap-1.5 rounded-md border border-ink-600 px-3 py-1.5 text-xs text-paper-300 hover:border-signal-crit/40 hover:text-signal-crit focus-ring"
+              className="flex items-center gap-1.5 rounded-md border border-vivid-red/40 text-vivid-red px-3 py-1.5 text-xs hover:bg-vivid-red-tint transition-colors focus-ring"
             >
               <RotateCcw size={13} /> Clear All
             </button>
             <button
               onClick={() => setShowBulk((s) => !s)}
-              className="flex items-center gap-1.5 rounded-md bg-brand-500/10 border border-brand-500/30 text-brand-600 px-3 py-1.5 text-xs hover:bg-brand-500/20 transition-colors focus-ring"
+              className="flex items-center gap-1.5 rounded-md bg-vivid-purple px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:brightness-110 transition-all focus-ring"
             >
               <Plus size={13} /> Bulk Add Barges
             </button>
@@ -395,14 +395,14 @@ export default function Barges() {
                         />
                         <button
                           onClick={() => fileInputRefs.current[b.id]?.click()}
-                          className="rounded-md border border-ink-600 px-2.5 py-1 text-xs text-paper-300 hover:bg-ink-800 focus-ring"
+                          className="rounded-md border border-vivid-cyan/50 text-vivid-cyan px-2.5 py-1 text-xs font-medium hover:bg-vivid-cyan-tint transition-colors focus-ring"
                         >
                           Upload
                         </button>
                         <button
                           onClick={() => pendingFile && setAnalysingBarge(b)}
                           disabled={!pendingFile}
-                          className="rounded-md bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-sm hover:shadow-md transition-shadow px-2.5 py-1 text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="rounded-md bg-vivid-teal text-white shadow-sm hover:brightness-110 transition-all px-2.5 py-1 text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           Analyse
                         </button>

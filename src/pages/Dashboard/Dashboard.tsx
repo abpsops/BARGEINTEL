@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from "recharts"
+import { BarChart, Bar, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from "recharts"
 import { getDataProvider } from "@/services/data"
 import PageHeader from "@/components/ui/PageHeader"
 import KpiCard from "@/components/ui/KpiCard"
@@ -9,8 +9,11 @@ import { colorForCompetitor } from "@/lib/competitorColors"
 import { findOperationAnomalies, vesselIdentityKey } from "@/lib/anomalies"
 import { Link } from "react-router-dom"
 
-// Vivid, distinct series colors for the competitor trend chart.
-// (trend colors now come from the shared colorForCompetitor palette below)
+// A repeating, curated hue cycle for charts that aren't keyed to a
+// specific competitor (e.g. bars-by-day below) — colorForCompetitor is
+// used instead wherever a bar/series actually represents one competitor,
+// so that competitor's color stays stable across the whole app.
+const CHART_HUES = ["#2563EB", "#0D9488", "#EA580C", "#7C3AED", "#DB2777", "#0891B2", "#16A34A", "#D97706"]
 
 function isoWeekLabel(dateStr: string): { key: string; label: string } {
   const d = new Date(dateStr + "T00:00:00Z")
@@ -95,25 +98,25 @@ export default function Dashboard() {
       />
 
       <div className="px-6 grid grid-cols-2 md:grid-cols-5 gap-3">
-        <KpiCard label="Tracked Competitors" value={competitors.length} icon={Building2} tone="brand" />
-        <KpiCard label="Tracked Barges" value={barges.length} icon={Sailboat} tone="bunker" />
-        <KpiCard label="Observed STS Operations" value={operations.length} icon={Radar} tone="supply" />
-        <KpiCard label="Unique Vessels" value={uniqueVessels} icon={Ship} tone="ok" />
+        <KpiCard label="Tracked Competitors" value={competitors.length} icon={Building2} tone="blue" />
+        <KpiCard label="Tracked Barges" value={barges.length} icon={Sailboat} tone="teal" />
+        <KpiCard label="Observed STS Operations" value={operations.length} icon={Radar} tone="orange" />
+        <KpiCard label="Unique Vessels" value={uniqueVessels} icon={Ship} tone="green" />
         <Link to="/barges" className="block">
           <KpiCard
             label="Flagged Anomalies"
             value={anomalyCount}
             sublabel={anomalyCount > 0 ? "Different barge/vessel <5h — view in Barges" : "None detected"}
             icon={AlertTriangle}
-            tone="warn"
+            tone="red"
           />
         </Link>
       </div>
 
       <div className="px-6 mt-3 grid grid-cols-3 gap-3">
-        <KpiCard label="Last 24H" value={countInRange(last24h.from, last24h.to)} icon={Clock} tone="brand" />
-        <KpiCard label="Last 7 Days" value={countInRange(last7.from, last7.to)} icon={CalendarDays} tone="bunker" />
-        <KpiCard label="This Month" value={countInRange(thisMonth.from, thisMonth.to)} icon={CalendarRange} tone="supply" />
+        <KpiCard label="Last 24H" value={countInRange(last24h.from, last24h.to)} icon={Clock} tone="cyan" />
+        <KpiCard label="Last 7 Days" value={countInRange(last7.from, last7.to)} icon={CalendarDays} tone="purple" />
+        <KpiCard label="This Month" value={countInRange(thisMonth.from, thisMonth.to)} icon={CalendarRange} tone="pink" />
       </div>
 
       <div className="px-6 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -130,7 +133,11 @@ export default function Dashboard() {
                 contentStyle={{ background: "#FFFFFF", border: "1px solid #E2E8F0", fontSize: 12 }}
                 labelStyle={{ color: "#0B1220" }}
               />
-              <Bar dataKey="count" fill="#0F8A80" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="count" radius={[3, 3, 0, 0]}>
+                {dailySeries.map((_, i) => (
+                  <Cell key={i} fill={CHART_HUES[i % CHART_HUES.length]} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -140,15 +147,16 @@ export default function Dashboard() {
             Activity by Competitor
           </div>
           <div className="space-y-2">
-            {byCompetitor.map((c) => {
+            {byCompetitor.map((c, i) => {
               const max = byCompetitor[0]?.count || 1
+              const hue = CHART_HUES[i % CHART_HUES.length]
               return (
                 <div key={c.name} className="flex items-center gap-2">
                   <span className="w-10 text-xs font-mono text-paper-300">{c.name}</span>
                   <div className="flex-1 h-2 rounded-md bg-ink-700 overflow-hidden">
                     <div
-                      className="h-full"
-                      style={{ width: `${(c.count / max) * 100}%`, backgroundColor: colorForCompetitor(c.id) }}
+                      className="h-full rounded-md"
+                      style={{ width: `${(c.count / max) * 100}%`, background: colorForCompetitor(c.id) }}
                     />
                   </div>
                   <span className="w-8 text-right text-xs font-mono text-paper-500">{c.count}</span>

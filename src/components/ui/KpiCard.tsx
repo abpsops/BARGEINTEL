@@ -1,13 +1,41 @@
 import type { LucideIcon } from "lucide-react"
 
-export type KpiTone = "brand" | "bunker" | "supply" | "ok" | "warn"
+export type KpiTone = "blue" | "cyan" | "teal" | "green" | "amber" | "orange" | "pink" | "purple" | "red"
 
-const TONE_BG: Record<KpiTone, string> = {
-  brand: "bg-brand-600",
-  bunker: "bg-signal-bunker",
-  supply: "bg-signal-supply",
-  ok: "bg-signal-ok",
-  warn: "bg-signal-warn",
+const TONE_ICON_BG: Record<KpiTone, string> = {
+  blue: "bg-vivid-blue",
+  cyan: "bg-vivid-cyan",
+  teal: "bg-vivid-teal",
+  green: "bg-vivid-green",
+  amber: "bg-vivid-amber",
+  orange: "bg-vivid-orange",
+  pink: "bg-vivid-pink",
+  purple: "bg-vivid-purple",
+  red: "bg-vivid-red",
+}
+
+const TONE_CARD_TINT: Record<KpiTone, string> = {
+  blue: "bg-vivid-blue-tint",
+  cyan: "bg-vivid-cyan-tint",
+  teal: "bg-vivid-teal-tint",
+  green: "bg-vivid-green-tint",
+  amber: "bg-vivid-amber-tint",
+  orange: "bg-vivid-orange-tint",
+  pink: "bg-vivid-pink-tint",
+  purple: "bg-vivid-purple-tint",
+  red: "bg-vivid-red-tint",
+}
+
+const TONE_TEXT: Record<KpiTone, string> = {
+  blue: "text-vivid-blue",
+  cyan: "text-vivid-cyan",
+  teal: "text-vivid-teal",
+  green: "text-vivid-green",
+  amber: "text-vivid-amber",
+  orange: "text-vivid-orange",
+  pink: "text-vivid-pink",
+  purple: "text-vivid-purple",
+  red: "text-vivid-red",
 }
 
 export default function KpiCard({
@@ -15,7 +43,7 @@ export default function KpiCard({
   value,
   sublabel,
   icon: Icon,
-  tone = "brand",
+  tone = "blue",
 }: {
   label: string
   value: string | number
@@ -24,16 +52,17 @@ export default function KpiCard({
   tone?: KpiTone
 }) {
   return (
-    <div className="rounded-xl glass px-4 py-3.5">
+    <div className={`relative overflow-hidden rounded-xl border border-ink-700 ${TONE_CARD_TINT[tone]} px-4 py-3.5 shadow-sm`}>
+      <div className={`absolute inset-x-0 top-0 h-1 ${TONE_ICON_BG[tone]}`} />
       <div className="flex items-center justify-between">
-        <div className="text-xs font-medium text-paper-500">{label}</div>
+        <div className="text-xs font-medium text-paper-300">{label}</div>
         {Icon && (
-          <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${TONE_BG[tone]}`}>
+          <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${TONE_ICON_BG[tone]} shadow-sm`}>
             <Icon size={13} className="text-white" strokeWidth={2.25} />
           </div>
         )}
       </div>
-      <div className="mt-1.5 font-display text-2xl font-semibold text-paper-100">{value}</div>
+      <div className={`mt-1.5 font-display text-2xl font-bold ${TONE_TEXT[tone]}`}>{value}</div>
       {sublabel && <div className="mt-0.5 text-xs text-paper-500">{sublabel}</div>}
     </div>
   )

@@ -157,7 +157,7 @@ export default function STSAnalysis() {
           />
           <button
             onClick={runAnalysis}
-            className="ml-auto rounded-md bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-sm hover:shadow-md transition-shadow px-5 py-2 text-sm font-medium focus-ring"
+            className="ml-auto rounded-md bg-vivid-blue text-white shadow-sm hover:brightness-110 transition-all px-5 py-2 text-sm font-medium focus-ring"
           >
             Run analysis
           </button>
@@ -180,10 +180,10 @@ export default function STSAnalysis() {
         {hasRun && (
         <>
         <div className="mt-4 grid grid-cols-4 gap-3">
-          <KpiCard label="STS Operations" value={results.length} icon={Radar} tone="brand" />
-          <KpiCard label="Unique Receiving Vessels" value={uniqueVesselCount} icon={Ship} tone="ok" />
-          <KpiCard label="Active Barges" value={activeBargeCount} icon={Sailboat} tone="bunker" />
-          <KpiCard label="Active Competitors" value={activeCompetitorCount} icon={Building2} tone="supply" />
+          <KpiCard label="STS Operations" value={results.length} icon={Radar} tone="blue" />
+          <KpiCard label="Unique Receiving Vessels" value={uniqueVesselCount} icon={Ship} tone="green" />
+          <KpiCard label="Active Barges" value={activeBargeCount} icon={Sailboat} tone="teal" />
+          <KpiCard label="Active Competitors" value={activeCompetitorCount} icon={Building2} tone="orange" />
         </div>
 
         <div className="mt-5 flex items-center justify-between">

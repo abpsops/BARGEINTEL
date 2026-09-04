@@ -47,6 +47,23 @@ export default {
           500: "#1B4965",
           600: "#123449",
         },
+        // A curated, saturated palette used deliberately across KPI cards,
+        // nav icons, and chart series so the app reads as colourful and
+        // alive rather than the earlier all-navy/amber restraint. Each
+        // hue has a `DEFAULT` (icon/text/bar) and a `tint` (soft card
+        // background) so colour carries real information (which KPI,
+        // which competitor) instead of being decorative.
+        vivid: {
+          blue:   { DEFAULT: "#2563EB", tint: "#EAF1FE" },
+          cyan:   { DEFAULT: "#0891B2", tint: "#E5F6F9" },
+          teal:   { DEFAULT: "#0D9488", tint: "#E3F5F2" },
+          green:  { DEFAULT: "#16A34A", tint: "#E9F8EE" },
+          amber:  { DEFAULT: "#D97706", tint: "#FCF1E1" },
+          orange: { DEFAULT: "#EA580C", tint: "#FDECE3" },
+          pink:   { DEFAULT: "#DB2777", tint: "#FCE9F1" },
+          purple: { DEFAULT: "#7C3AED", tint: "#F1EBFD" },
+          red:    { DEFAULT: "#DC2626", tint: "#FCEAEA" },
+        },
       },
       fontFamily: {
         display: ["Space Grotesk", "system-ui", "sans-serif"],

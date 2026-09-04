@@ -6,27 +6,27 @@ import Logo from "@/components/ui/Logo"
 
 const NAV_SECTIONS: {
   label: string
-  items: { to: string; label: string; icon: React.ElementType }[]
+  items: { to: string; label: string; icon: React.ElementType; color: string }[]
 }[] = [
-  { label: "", items: [{ to: "/", label: "Dashboard", icon: LayoutDashboard }] },
+  { label: "", items: [{ to: "/", label: "Dashboard", icon: LayoutDashboard, color: "#60A5FA" }] },
   {
     label: "Intelligence",
     items: [
-      { to: "/sts-analysis", label: "Competitor Analysis", icon: Radar },
-      { to: "/vessel-overlap", label: "Vessel Overlap", icon: GitCompareArrows },
+      { to: "/sts-analysis", label: "Competitor Analysis", icon: Radar, color: "#C084FC" },
+      { to: "/vessel-overlap", label: "Vessel Overlap", icon: GitCompareArrows, color: "#F472B6" },
     ],
   },
   {
     label: "Fleet",
     items: [
-      { to: "/competitors", label: "Competitors", icon: Building2 },
-      { to: "/barges", label: "Barges", icon: Sailboat },
-      { to: "/vessels", label: "Vessels", icon: Ship },
+      { to: "/competitors", label: "Competitors", icon: Building2, color: "#22D3EE" },
+      { to: "/barges", label: "Barges", icon: Sailboat, color: "#2DD4BF" },
+      { to: "/vessels", label: "Vessels", icon: Ship, color: "#4ADE80" },
     ],
   },
   {
     label: "Reports",
-    items: [{ to: "/reports", label: "Reports", icon: FileBarChart }],
+    items: [{ to: "/reports", label: "Reports", icon: FileBarChart, color: "#FB923C" }],
   },
 ]
 
@@ -63,15 +63,16 @@ export default function DashboardLayout() {
                     key={item.to}
                     to={item.to}
                     end={item.to === "/"}
+                    style={({ isActive }) => ({ borderLeftColor: isActive ? item.color : "transparent" })}
                     className={({ isActive }) =>
                       `flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors focus-ring border-l-2 ${
                         isActive
-                          ? "bg-navy-800 border-signal-warn text-white font-medium"
+                          ? "bg-navy-800 text-white font-medium"
                           : "border-transparent text-navy-500 hover:bg-navy-800/60 hover:text-white"
                       }`
                     }
                   >
-                    <item.icon size={15} strokeWidth={1.75} />
+                    <item.icon size={15} strokeWidth={2} style={{ color: item.color }} />
                     {item.label}
                   </NavLink>
                 ))}
@@ -91,7 +92,7 @@ export default function DashboardLayout() {
             <span>Search vessel, IMO, barge, competitor…</span>
             <kbd className="ml-auto text-[10px] font-mono border border-ink-600 rounded-md px-1">/</kbd>
           </button>
-          <div className="h-7 w-7 rounded-full bg-brand-600 flex items-center justify-center text-xs font-medium text-white">
+          <div className="h-7 w-7 rounded-full bg-gradient-to-br from-vivid-blue to-vivid-purple flex items-center justify-center text-xs font-medium text-white shadow-sm">
             OP
           </div>
         </header>

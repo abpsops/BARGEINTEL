@@ -58,7 +58,7 @@ export default function Competitors() {
         actions={
           <button
             onClick={() => setShowForm((s) => !s)}
-            className="flex items-center gap-1.5 rounded-md bg-brand-500/10 border border-brand-500/30 text-brand-600 px-3 py-1.5 text-xs hover:bg-brand-500/20 transition-colors focus-ring"
+            className="flex items-center gap-1.5 rounded-md bg-vivid-purple px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:brightness-110 transition-all focus-ring"
           >
             <Plus size={13} /> Add Competitor
           </button>
@@ -77,7 +77,7 @@ export default function Competitors() {
             <Field label="Description">
               <input value={description} onChange={(e) => setDescription(e.target.value)} className="input w-64" placeholder="Optional" />
             </Field>
-            <button onClick={submit} className="rounded-md bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-sm hover:shadow-md transition-shadow px-3 py-1.5 text-xs font-medium">
+            <button onClick={submit} className="rounded-md bg-vivid-purple text-white shadow-sm hover:brightness-110 transition-all px-3 py-1.5 text-xs font-medium">
               Save
             </button>
           </div>
