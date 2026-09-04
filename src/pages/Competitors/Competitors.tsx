@@ -4,6 +4,7 @@ import { Plus, X } from "lucide-react"
 import { getDataProvider } from "@/services/data"
 import PageHeader from "@/components/ui/PageHeader"
 import { formatDateDisplay } from "@/lib/dates"
+import { colorForCompetitor } from "@/lib/competitorColors"
 
 export default function Competitors() {
   const provider = getDataProvider()
@@ -103,7 +104,17 @@ export default function Competitors() {
                         selectedId === c.id ? "bg-ink-800" : ""
                       }`}
                     >
-                      <td className="px-4 py-2.5">{c.name}</td>
+                      <td className="px-4 py-2.5">
+                        <div className="flex items-center gap-2.5">
+                          <span
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white"
+                            style={{ backgroundColor: colorForCompetitor(c.id) }}
+                          >
+                            {c.code.slice(0, 2)}
+                          </span>
+                          {c.name}
+                        </div>
+                      </td>
                       <td className="px-4 py-2.5 font-mono text-paper-500">{c.code}</td>
                       <td className="px-4 py-2.5 text-right font-mono">{s.activeBarges}</td>
                       <td className="px-4 py-2.5 text-right font-mono">{s.operations}</td>
@@ -140,8 +151,16 @@ export default function Competitors() {
             {!selected && <div className="text-sm text-paper-500">Select a competitor to view its profile.</div>}
             {selected && (
               <div>
-                <div className="font-display text-lg">{selected.name}</div>
-                <div className="text-xs font-mono text-paper-500 mb-4">{selected.code}</div>
+                <div className="flex items-center gap-2.5 mb-1">
+                  <span
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
+                    style={{ backgroundColor: colorForCompetitor(selected.id) }}
+                  >
+                    {selected.code.slice(0, 2)}
+                  </span>
+                  <div className="font-display text-lg">{selected.name}</div>
+                </div>
+                <div className="text-xs font-mono text-paper-500 mb-4 ml-[42px]">{selected.code}</div>
                 {(() => {
                   const s = stats(selected.id)
                   return (

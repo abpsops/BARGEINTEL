@@ -1,7 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom"
 import { useState } from "react"
-import { LayoutDashboard, Radar, Building2, Sailboat, FileBarChart, Search } from "lucide-react"
-import { getDataProvider } from "@/services/data"
+import { LayoutDashboard, Radar, Building2, Sailboat, FileBarChart, Search, GitCompareArrows } from "lucide-react"
 import GlobalSearch from "@/components/layout/GlobalSearch"
 import Logo from "@/components/ui/Logo"
 
@@ -12,7 +11,10 @@ const NAV_SECTIONS: {
   { label: "", items: [{ to: "/", label: "Dashboard", icon: LayoutDashboard }] },
   {
     label: "Intelligence",
-    items: [{ to: "/sts-analysis", label: "Competitor Analysis", icon: Radar }],
+    items: [
+      { to: "/sts-analysis", label: "Competitor Analysis", icon: Radar },
+      { to: "/vessel-overlap", label: "Vessel Overlap", icon: GitCompareArrows },
+    ],
   },
   {
     label: "Fleet",
@@ -28,7 +30,6 @@ const NAV_SECTIONS: {
 ]
 
 export default function DashboardLayout() {
-  const provider = getDataProvider()
   const [searchOpen, setSearchOpen] = useState(false)
 
   return (
@@ -77,12 +78,6 @@ export default function DashboardLayout() {
             </div>
           ))}
         </nav>
-
-        {provider.isDemo && (
-          <div className="mx-3 mb-3 rounded-md border border-signal-warn/30 bg-signal-warn/10 px-2.5 py-2 text-[11px] text-signal-warn font-mono">
-            DEMO DATA — no Supabase connected
-          </div>
-        )}
       </aside>
 
       <div className="relative z-10 flex-1 flex flex-col min-w-0">

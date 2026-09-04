@@ -4,6 +4,7 @@ import Dashboard from "@/pages/Dashboard/Dashboard"
 import Competitors from "@/pages/Competitors/Competitors"
 import Barges from "@/pages/Barges/Barges"
 import STSAnalysis from "@/pages/STSAnalysis/STSAnalysis"
+import VesselOverlap from "@/pages/VesselOverlap/VesselOverlap"
 import Reports from "@/pages/Reports/Reports"
 import Login from "@/pages/Login/Login"
 import { useAuth } from "@/hooks/useAuth"
@@ -20,6 +21,7 @@ export default function App() {
             <Route path="/competitors/:id" element={<Competitors />} />
             <Route path="/barges" element={<Barges />} />
             <Route path="/sts-analysis" element={<STSAnalysis />} />
+            <Route path="/vessel-overlap" element={<VesselOverlap />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

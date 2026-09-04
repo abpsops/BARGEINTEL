@@ -1,11 +1,26 @@
 import { useQuery } from "@tanstack/react-query"
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, CartesianGrid } from "recharts"
 import { getDataProvider } from "@/services/data"
 import PageHeader from "@/components/ui/PageHeader"
 import KpiCard from "@/components/ui/KpiCard"
 import { Building2, Sailboat, Radar, Ship, Clock, CalendarDays, CalendarRange } from "lucide-react"
 import { formatDateDisplay, resolvePreset } from "@/lib/dates"
+import { colorForCompetitor } from "@/lib/competitorColors"
 import { Link } from "react-router-dom"
+
+// Vivid, distinct series colors for the competitor trend chart.
+// (trend colors now come from the shared colorForCompetitor palette below)
+
+function isoWeekLabel(dateStr: string): { key: string; label: string } {
+  const d = new Date(dateStr + "T00:00:00Z")
+  const dayNum = (d.getUTCDay() + 6) % 7
+  d.setUTCDate(d.getUTCDate() - dayNum + 3)
+  const firstThursday = new Date(Date.UTC(d.getUTCFullYear(), 0, 4))
+  const week = 1 + Math.round(((d.getTime() - firstThursday.getTime()) / 86400000 - 3 + ((firstThursday.getUTCDay() + 6) % 7)) / 7)
+  const monday = new Date(d)
+  monday.setUTCDate(d.getUTCDate() - 3)
+  return { key: `${d.getUTCFullYear()}-W${String(week).padStart(2, "0")}`, label: `${monday.getUTCDate()}/${monday.getUTCMonth() + 1}` }
+}
 
 export default function Dashboard() {
   const provider = getDataProvider()
@@ -37,10 +52,38 @@ export default function Dashboard() {
 
   const byCompetitor = competitors
     .map((c) => ({
+      id: c.id,
       name: c.code,
       count: operations.filter((o) => o.competitor_id === c.id).length,
     }))
     .sort((a, b) => b.count - a.count)
+
+  // Weekly STS Bunkering trend for the top 6 most active competitors —
+  // enough series to compare, few enough to stay legible.
+  const topCompetitors = competitors
+    .map((c) => ({
+      id: c.id,
+      code: c.code,
+      bunkeringCount: operations.filter((o) => o.competitor_id === c.id && o.operation_type === "STS_BUNKERING").length,
+    }))
+    .filter((c) => c.bunkeringCount > 0)
+    .sort((a, b) => b.bunkeringCount - a.bunkeringCount)
+    .slice(0, 6)
+
+  const weeklyTrendMap = new Map<string, { label: string; [code: string]: number | string }>()
+  operations
+    .filter((o) => o.operation_type === "STS_BUNKERING" && topCompetitors.some((c) => c.id === o.competitor_id))
+    .forEach((o) => {
+      const { key, label } = isoWeekLabel(o.operation_date)
+      const competitor = topCompetitors.find((c) => c.id === o.competitor_id)!
+      if (!weeklyTrendMap.has(key)) weeklyTrendMap.set(key, { label })
+      const row = weeklyTrendMap.get(key)!
+      row[competitor.code] = ((row[competitor.code] as number) ?? 0) + 1
+    })
+  const weeklyTrendData = [...weeklyTrendMap.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : 1))
+    .slice(-10)
+    .map(([, row]) => row)
 
   return (
     <div>
@@ -93,8 +136,8 @@ export default function Dashboard() {
                   <span className="w-10 text-xs font-mono text-paper-300">{c.name}</span>
                   <div className="flex-1 h-2 rounded-md bg-ink-700 overflow-hidden">
                     <div
-                      className="h-full bg-signal-supply"
-                      style={{ width: `${(c.count / max) * 100}%` }}
+                      className="h-full"
+                      style={{ width: `${(c.count / max) * 100}%`, backgroundColor: colorForCompetitor(c.id) }}
                     />
                   </div>
                   <span className="w-8 text-right text-xs font-mono text-paper-500">{c.count}</span>
@@ -103,6 +146,28 @@ export default function Dashboard() {
             })}
           </div>
         </div>
+      </div>
+
+      <div className="px-6 mt-4 rounded-xl glass p-4">
+        <div className="text-xs font-medium text-paper-500 mb-3">
+          STS Bunkering Trend by Competitor — Last 10 Weeks
+        </div>
+        {topCompetitors.length === 0 ? (
+          <p className="text-sm text-paper-500 py-8 text-center">No STS Bunkering events recorded yet.</p>
+        ) : (
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={weeklyTrendData}>
+              <CartesianGrid stroke="#E4E4E7" vertical={false} />
+              <XAxis dataKey="label" tick={{ fontSize: 10, fill: "#71717A" }} axisLine={{ stroke: "#E4E4E7" }} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: "#71717A" }} axisLine={false} tickLine={false} allowDecimals={false} />
+              <Tooltip contentStyle={{ background: "#FFFFFF", border: "1px solid #E4E4E7", fontSize: 12 }} labelStyle={{ color: "#18181B" }} />
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              {topCompetitors.map((c, i) => (
+                <Bar key={c.id} dataKey={c.code} name={c.code} fill={colorForCompetitor(c.id)} radius={[2, 2, 0, 0]} />
+              ))}
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       <div className="px-6 mt-4 mb-8 flex items-center justify-between text-xs text-paper-500">

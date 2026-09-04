@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { Download } from "lucide-react"
+import { Download, AlertTriangle } from "lucide-react"
 import { getDataProvider } from "@/services/data"
 import PageHeader from "@/components/ui/PageHeader"
 import KpiCard from "@/components/ui/KpiCard"
@@ -10,6 +10,7 @@ import MultiSelectFilter from "@/components/filters/MultiSelectFilter"
 import OperationBadge from "@/components/ui/OperationBadge"
 import { resolvePreset, formatDateDisplay } from "@/lib/dates"
 import { exportToCsv } from "@/lib/exportCsv"
+import { findShortGapFlags } from "@/lib/exportPdf"
 import type { OperationType } from "@/types"
 import { OPERATION_LABELS } from "@/lib/normalizeOperation"
 
@@ -80,6 +81,16 @@ export default function STSAnalysis() {
   const uniqueVesselCount = new Set(results.map((o) => o.receiving_vessel_imo || o.receiving_vessel_name)).size
   const activeBargeCount = new Set(results.map((o) => o.barge_id)).size
   const activeCompetitorCount = new Set(results.map((o) => o.competitor_id)).size
+
+  const flaggedIndices = useMemo(
+    () =>
+      findShortGapFlags(
+        results,
+        (o) => o.barge_id,
+        (o) => (o.start_time ? new Date(`${o.operation_date}T${o.start_time}:00Z`).getTime() : null)
+      ),
+    [results]
+  )
 
   const runExport = () => {
     if (mode === "all") {
@@ -223,11 +234,20 @@ export default function STSAnalysis() {
               </thead>
               <tbody>
                 {results
-                  .slice()
-                  .sort((a, b) => (a.operation_date < b.operation_date ? 1 : -1))
-                  .map((o) => (
+                  .map((o, i) => ({ o, i }))
+                  .sort((a, b) => (a.o.operation_date < b.o.operation_date ? 1 : -1))
+                  .map(({ o, i }) => (
                     <tr key={o.id} className="border-b border-ink-800 hover:bg-ink-800/60">
-                      <td className="px-4 py-2.5 whitespace-nowrap">{formatDateDisplay(o.operation_date)}</td>
+                      <td className="px-4 py-2.5 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5">
+                          {formatDateDisplay(o.operation_date)}
+                          {flaggedIndices.has(i) && (
+                            <span title="Two bunkering events on this barge less than 5 hours apart — worth double-checking">
+                              <AlertTriangle size={12} className="text-signal-warn" />
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-4 py-2.5 font-mono text-paper-500">{o.start_time ?? "—"}</td>
                       <td className="px-4 py-2.5">{o.competitor_name}</td>
                       <td className="px-4 py-2.5">{o.barge_name}</td>
