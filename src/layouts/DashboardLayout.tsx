@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom"
 import { useState } from "react"
-import { LayoutDashboard, Radar, Building2, Sailboat, FileBarChart, Search, GitCompareArrows } from "lucide-react"
+import { LayoutDashboard, Radar, Building2, Sailboat, Ship, FileBarChart, Search, GitCompareArrows } from "lucide-react"
 import GlobalSearch from "@/components/layout/GlobalSearch"
 import Logo from "@/components/ui/Logo"
 
@@ -21,6 +21,7 @@ const NAV_SECTIONS: {
     items: [
       { to: "/competitors", label: "Competitors", icon: Building2 },
       { to: "/barges", label: "Barges", icon: Sailboat },
+      { to: "/vessels", label: "Vessels", icon: Ship },
     ],
   },
   {

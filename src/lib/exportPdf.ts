@@ -1,5 +1,6 @@
 import { jsPDF } from "jspdf"
 import autoTable from "jspdf-autotable"
+export { findShortGapFlags } from "@/lib/anomalies"
 
 export interface PdfSummaryRow {
   label: string
@@ -12,6 +13,13 @@ export interface PdfCompetitorLocationRow {
   location: string
   operations: number
   vessels: number
+}
+
+export interface PdfAnomalyExplanation {
+  /** 1-based row numbers matching the main table's S.No. column, earlier first. */
+  rowNumbers: [number, number]
+  gapLabel: string
+  summary: string
 }
 
 export interface PdfExportOptions {
@@ -31,6 +39,21 @@ export interface PdfExportOptions {
    * it's flagged as a likely AIS/data anomaly ("spoofed").
    */
   flaggedRows?: number[]
+  /**
+   * Set when the first column of `rows` is a row number (e.g. "#") —
+   * narrows that column and centers/bolds it instead of stretching it
+   * like a normal text column, and lets the "Rows" reference in
+   * anomalyExplanations line up with something actually printed in the
+   * main table.
+   */
+  firstColumnIsRowNumber?: boolean
+  /**
+   * Plain-language explanation for each flagged pair, rendered on its own
+   * page right after the main table — which two rows, how close together
+   * they were, and why that specific pattern is implausible. Without
+   * this, a highlighted row only says "flagged", not why.
+   */
+  anomalyExplanations?: PdfAnomalyExplanation[]
   /**
    * When provided, a final summary page is appended after the main table:
    * a "Vessels Supplied by Competitor" breakdown and an "Operations by
@@ -79,6 +102,9 @@ export function exportToPdf(
     body: rows.map((r) => r.map((c) => (c === null || c === undefined ? "" : String(c)))),
     styles: { fontSize: 8 },
     headStyles: { fillColor: [15, 138, 128] },
+    columnStyles: options?.firstColumnIsRowNumber
+      ? { 0: { cellWidth: 9, halign: "center", fontStyle: "bold", textColor: [110, 110, 110] } }
+      : undefined,
     didParseCell: (data) => {
       if (data.section === "body" && flagged.has(data.row.index)) {
         data.cell.styles.fillColor = [255, 236, 140]
@@ -103,11 +129,46 @@ export function exportToPdf(
     doc.setFontSize(8)
     doc.setTextColor(110, 78, 0)
     doc.text(
-      `Highlighted rows: less than 5 hours since this barge's previous bunkering operation — flagged as a possible AIS/data anomaly ("spoofed").`,
+      `Highlighted rows: less than 5 hours since a related operation on a different barge or vessel — flagged as a possible AIS/data anomaly ("spoofed"). Same barge + same vessel within 5 hours is not flagged (normal multi-grade bunkering). See "Flagged Operations — Why" on the next page for the specific reason behind each highlight.`,
       14,
-      tableEndY + 6
+      tableEndY + 6,
+      { maxWidth: pageWidth - 28 }
     )
     doc.setTextColor(0, 0, 0)
+  }
+
+  if (options?.anomalyExplanations && options.anomalyExplanations.length) {
+    doc.addPage()
+    doc.setFontSize(14)
+    doc.text("Flagged Operations — Why", 14, 15)
+    doc.setFontSize(9)
+    doc.setTextColor(90, 90, 90)
+    doc.text(
+      `Each row below explains one highlighted pair from the "${title}" table — the two operations involved, how close together they were, and which implausible pattern applies.`,
+      14,
+      21,
+      { maxWidth: pageWidth - 28 }
+    )
+    doc.setTextColor(0, 0, 0)
+
+    autoTable(doc, {
+      startY: 28,
+      head: [["#", "Rows", "Gap", "Why it's flagged"]],
+      body: options.anomalyExplanations.map((e, i) => [
+        String(i + 1),
+        `${e.rowNumbers[0]} & ${e.rowNumbers[1]}`,
+        e.gapLabel,
+        e.summary,
+      ]),
+      styles: { fontSize: 9, cellPadding: 3, valign: "top" },
+      headStyles: { fillColor: [15, 138, 128] },
+      columnStyles: {
+        0: { cellWidth: 10, halign: "center", fontStyle: "bold" },
+        1: { cellWidth: 22, halign: "center", fontStyle: "bold" },
+        2: { cellWidth: 22, halign: "center" },
+      },
+      alternateRowStyles: { fillColor: [255, 249, 230] },
+    })
   }
 
   if (options?.summary) {
@@ -261,53 +322,6 @@ export function buildPdfCompetitorLocationBreakdown<T>(
   })
 
   return rows
-}
-
-/**
- * Flags operations that started less than `minGapHours` (default 5) after
- * the SAME barge's previous operation, anywhere in the dataset — not just
- * within one vessel or one location. A single barge physically cannot
- * finish one bunkering, transit and start another within a couple of
- * hours, so a short gap is flagged as a likely AIS/data anomaly.
- *
- * `items` does not need to be pre-sorted; this groups by barge internally
- * and walks each barge's own operations in chronological order. Returns
- * the indices (into the original `items` array) of every operation that
- * is either the trigger of a short gap or the operation immediately
- * before it, since both ends of a too-close pair are equally suspicious.
- */
-export function findShortGapFlags<T>(
-  items: T[],
-  bargeKeyFn: (item: T) => string,
-  timestampFn: (item: T) => number | null,
-  minGapHours = 5
-): Set<number> {
-  const flagged = new Set<number>()
-  const byBarge = new Map<string, number[]>() // bargeKey -> original indices
-  items.forEach((item, i) => {
-    const key = bargeKeyFn(item)
-    if (!byBarge.has(key)) byBarge.set(key, [])
-    byBarge.get(key)!.push(i)
-  })
-
-  const minGapMs = minGapHours * 60 * 60 * 1000
-
-  byBarge.forEach((indices) => {
-    const withTs = indices
-      .map((i) => ({ i, ts: timestampFn(items[i]) }))
-      .filter((x): x is { i: number; ts: number } => x.ts !== null)
-      .sort((a, b) => a.ts - b.ts)
-
-    for (let k = 1; k < withTs.length; k++) {
-      const gap = withTs[k].ts - withTs[k - 1].ts
-      if (gap >= 0 && gap < minGapMs) {
-        flagged.add(withTs[k - 1].i)
-        flagged.add(withTs[k].i)
-      }
-    }
-  })
-
-  return flagged
 }
 
 /** Formats a min/max operation-date pair as "29 Aug 2026 – 31 Aug 2026". */

@@ -1,16 +1,20 @@
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useParams, useNavigate } from "react-router-dom"
 import { Plus, X } from "lucide-react"
 import { getDataProvider } from "@/services/data"
 import PageHeader from "@/components/ui/PageHeader"
 import { formatDateDisplay } from "@/lib/dates"
 import { colorForCompetitor } from "@/lib/competitorColors"
+import { vesselIdentityKey } from "@/lib/anomalies"
 
 export default function Competitors() {
   const provider = getDataProvider()
   const qc = useQueryClient()
+  const { id: routeId } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const [showForm, setShowForm] = useState(false)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(routeId ?? null)
   const [name, setName] = useState("")
   const [code, setCode] = useState("")
   const [description, setDescription] = useState("")
@@ -21,7 +25,7 @@ export default function Competitors() {
 
   const stats = (competitorId: string) => {
     const ops = operations.filter((o) => o.competitor_id === competitorId)
-    const uniqueVessels = new Set(ops.map((o) => o.receiving_vessel_imo || o.receiving_vessel_name)).size
+    const uniqueVessels = new Set(ops.map(vesselIdentityKey)).size
     const activeBarges = barges.filter((b) => b.competitor_id === competitorId && b.active).length
     const latest = ops.length ? ops.reduce((m, o) => (o.operation_date > m ? o.operation_date : m), ops[0].operation_date) : null
     return { operations: ops.length, uniqueVessels, activeBarges, latest }
@@ -99,7 +103,10 @@ export default function Competitors() {
                   return (
                     <tr
                       key={c.id}
-                      onClick={() => setSelectedId(c.id)}
+                      onClick={() => {
+                        setSelectedId(c.id)
+                        navigate(`/competitors/${c.id}`, { replace: true })
+                      }}
                       className={`border-b border-ink-800 cursor-pointer hover:bg-ink-800/60 ${
                         selectedId === c.id ? "bg-ink-800" : ""
                       }`}

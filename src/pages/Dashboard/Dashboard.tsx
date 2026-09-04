@@ -3,9 +3,10 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cart
 import { getDataProvider } from "@/services/data"
 import PageHeader from "@/components/ui/PageHeader"
 import KpiCard from "@/components/ui/KpiCard"
-import { Building2, Sailboat, Radar, Ship, Clock, CalendarDays, CalendarRange } from "lucide-react"
+import { Building2, Sailboat, Radar, Ship, Clock, CalendarDays, CalendarRange, AlertTriangle } from "lucide-react"
 import { formatDateDisplay, resolvePreset } from "@/lib/dates"
 import { colorForCompetitor } from "@/lib/competitorColors"
+import { findOperationAnomalies, vesselIdentityKey } from "@/lib/anomalies"
 import { Link } from "react-router-dom"
 
 // Vivid, distinct series colors for the competitor trend chart.
@@ -38,7 +39,8 @@ export default function Dashboard() {
   const countInRange = (from: string, to: string) =>
     operations.filter((o) => o.operation_date >= from && o.operation_date <= to).length
 
-  const uniqueVessels = new Set(operations.map((o) => o.receiving_vessel_imo || o.receiving_vessel_name)).size
+  const uniqueVessels = new Set(operations.map(vesselIdentityKey)).size
+  const anomalyCount = findOperationAnomalies(operations).size
   const latestActivity = operations.length
     ? operations.reduce((max, o) => (o.operation_date > max ? o.operation_date : max), operations[0].operation_date)
     : null
@@ -92,11 +94,20 @@ export default function Dashboard() {
         subtitle="Observed competitor STS activity across all tracked barges."
       />
 
-      <div className="px-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="px-6 grid grid-cols-2 md:grid-cols-5 gap-3">
         <KpiCard label="Tracked Competitors" value={competitors.length} icon={Building2} tone="brand" />
         <KpiCard label="Tracked Barges" value={barges.length} icon={Sailboat} tone="bunker" />
         <KpiCard label="Observed STS Operations" value={operations.length} icon={Radar} tone="supply" />
         <KpiCard label="Unique Vessels" value={uniqueVessels} icon={Ship} tone="ok" />
+        <Link to="/barges" className="block">
+          <KpiCard
+            label="Flagged Anomalies"
+            value={anomalyCount}
+            sublabel={anomalyCount > 0 ? "Different barge/vessel <5h — view in Barges" : "None detected"}
+            icon={AlertTriangle}
+            tone="warn"
+          />
+        </Link>
       </div>
 
       <div className="px-6 mt-3 grid grid-cols-3 gap-3">

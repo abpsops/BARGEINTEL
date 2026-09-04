@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
+import { useNavigate } from "react-router-dom"
 import { X, Ship, Sailboat, Building2, Radar } from "lucide-react"
 import { getDataProvider } from "@/services/data"
 import { formatDateDisplay } from "@/lib/dates"
+import { vesselIdentityKey } from "@/lib/anomalies"
 
 export default function GlobalSearch({ onClose }: { onClose: () => void }) {
   const [query, setQuery] = useState("")
   const provider = getDataProvider()
+  const navigate = useNavigate()
 
   const { data: competitors = [] } = useQuery({ queryKey: ["competitors"], queryFn: () => provider.getCompetitors() })
   const { data: barges = [] } = useQuery({ queryKey: ["barges"], queryFn: () => provider.getBarges() })
@@ -31,7 +34,7 @@ export default function GlobalSearch({ onClose }: { onClose: () => void }) {
     operations
       .filter((op) => op.receiving_vessel_name.toLowerCase().includes(q) || op.receiving_vessel_imo.includes(q))
       .forEach((op) => {
-        const key = op.receiving_vessel_imo || op.receiving_vessel_name
+        const key = vesselIdentityKey(op)
         const existing = vesselMap.get(key)
         if (existing) existing.count++
         else vesselMap.set(key, { name: op.receiving_vessel_name, imo: op.receiving_vessel_imo, count: 1 })
@@ -74,7 +77,14 @@ export default function GlobalSearch({ onClose }: { onClose: () => void }) {
           {matchedCompetitors.length > 0 && (
             <SearchGroup icon={Building2} label="Competitors">
               {matchedCompetitors.map((c) => (
-                <div key={c.id} className="px-4 py-2 text-sm hover:bg-ink-700 cursor-pointer">
+                <div
+                  key={c.id}
+                  onClick={() => {
+                    navigate(`/competitors/${c.id}`)
+                    onClose()
+                  }}
+                  className="px-4 py-2 text-sm hover:bg-ink-700 cursor-pointer"
+                >
                   {c.name} <span className="text-paper-500 font-mono text-xs">{c.code}</span>
                 </div>
               ))}
@@ -84,7 +94,14 @@ export default function GlobalSearch({ onClose }: { onClose: () => void }) {
           {matchedBarges.length > 0 && (
             <SearchGroup icon={Sailboat} label="Barges">
               {matchedBarges.map((b) => (
-                <div key={b.id} className="px-4 py-2 text-sm hover:bg-ink-700 cursor-pointer flex justify-between">
+                <div
+                  key={b.id}
+                  onClick={() => {
+                    navigate(`/barges?highlight=${b.id}`)
+                    onClose()
+                  }}
+                  className="px-4 py-2 text-sm hover:bg-ink-700 cursor-pointer flex justify-between"
+                >
                   <span>{b.name}</span>
                   <span className="text-paper-500 font-mono text-xs">IMO {b.imo}</span>
                 </div>
@@ -95,7 +112,14 @@ export default function GlobalSearch({ onClose }: { onClose: () => void }) {
           {matchedVessels.length > 0 && (
             <SearchGroup icon={Ship} label="Vessels">
               {matchedVessels.map((v) => (
-                <div key={v.imo || v.name} className="px-4 py-2 text-sm hover:bg-ink-700 cursor-pointer flex justify-between">
+                <div
+                  key={v.imo || v.name}
+                  onClick={() => {
+                    navigate(v.imo ? `/vessels?imo=${encodeURIComponent(v.imo)}` : `/vessels?name=${encodeURIComponent(v.name)}`)
+                    onClose()
+                  }}
+                  className="px-4 py-2 text-sm hover:bg-ink-700 cursor-pointer flex justify-between"
+                >
                   <span>{v.name}</span>
                   <span className="text-paper-500 font-mono text-xs">{v.count} ops</span>
                 </div>
@@ -106,7 +130,14 @@ export default function GlobalSearch({ onClose }: { onClose: () => void }) {
           {matchedEvents.length > 0 && (
             <SearchGroup icon={Radar} label="STS Events">
               {matchedEvents.map((e) => (
-                <div key={e.id} className="px-4 py-2 text-sm hover:bg-ink-700 cursor-pointer flex justify-between">
+                <div
+                  key={e.id}
+                  onClick={() => {
+                    navigate(`/barges?highlight=${e.barge_id}`)
+                    onClose()
+                  }}
+                  className="px-4 py-2 text-sm hover:bg-ink-700 cursor-pointer flex justify-between"
+                >
                   <span>
                     {e.barge_name} → {e.receiving_vessel_name}
                   </span>

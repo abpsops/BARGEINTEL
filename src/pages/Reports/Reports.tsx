@@ -6,6 +6,7 @@ import PageHeader from "@/components/ui/PageHeader"
 import DateRangeFilter from "@/components/filters/DateRangeFilter"
 import { exportToCsv } from "@/lib/exportCsv"
 import { resolvePreset, isWithinRange } from "@/lib/dates"
+import { vesselIdentityKey } from "@/lib/anomalies"
 
 export default function Reports() {
   const provider = getDataProvider()
@@ -22,7 +23,7 @@ export default function Reports() {
     const rows = competitors.map((c) => {
       const ops = operations.filter((o) => o.competitor_id === c.id && inRange(o))
       const bunkeringOps = ops.filter((o) => o.operation_type === "STS_BUNKERING")
-      const uniqueVessels = new Set(ops.map((o) => o.receiving_vessel_imo || o.receiving_vessel_name)).size
+      const uniqueVessels = new Set(ops.map(vesselIdentityKey)).size
       const activeBarges = new Set(ops.map((o) => o.barge_id)).size
       const locations = [...new Set(ops.map((o) => o.location).filter(Boolean))].join("; ")
       return {
@@ -40,7 +41,7 @@ export default function Reports() {
   const vesselCompetitiveHistoryReport = () => {
     const map = new Map<string, { name: string; imo: string; competitors: Set<string>; barges: Set<string>; dates: string[]; locations: Set<string> }>()
     operations.filter(inRange).forEach((o) => {
-      const key = o.receiving_vessel_imo || o.receiving_vessel_name
+      const key = vesselIdentityKey(o)
       const existing = map.get(key)
       if (existing) {
         existing.competitors.add(o.competitor_name)

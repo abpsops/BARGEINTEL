@@ -3,6 +3,7 @@ import DashboardLayout from "@/layouts/DashboardLayout"
 import Dashboard from "@/pages/Dashboard/Dashboard"
 import Competitors from "@/pages/Competitors/Competitors"
 import Barges from "@/pages/Barges/Barges"
+import Vessels from "@/pages/Vessels/Vessels"
 import STSAnalysis from "@/pages/STSAnalysis/STSAnalysis"
 import VesselOverlap from "@/pages/VesselOverlap/VesselOverlap"
 import Reports from "@/pages/Reports/Reports"
@@ -20,6 +21,7 @@ export default function App() {
             <Route path="/competitors" element={<Competitors />} />
             <Route path="/competitors/:id" element={<Competitors />} />
             <Route path="/barges" element={<Barges />} />
+            <Route path="/vessels" element={<Vessels />} />
             <Route path="/sts-analysis" element={<STSAnalysis />} />
             <Route path="/vessel-overlap" element={<VesselOverlap />} />
             <Route path="/reports" element={<Reports />} />
